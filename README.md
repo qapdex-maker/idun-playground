@@ -41,13 +41,13 @@ The playground docs are exposed as a GitMCP server so AI tools can read them
 live (prefers `llms.txt`):
 
 ```
-https://gitmcp.io/qapdex-maker/idun-playground
+https://gitmcp.io/qapdex-maker/idun-playground/sse
 ```
 
 For stdio-only clients (Claude Desktop, Cline, Msty):
 
 ```json
-{ "mcpServers": { "idun-playground-docs": { "command": "npx", "args": ["mcp-remote", "https://gitmcp.io/qapdex-maker/idun-playground"] } } }
+{ "mcpServers": { "idun-playground-docs": { "command": "npx", "args": ["mcp-remote", "https://gitmcp.io/qapdex-maker/idun-playground/sse"] } } }
 ```
 
 To actually **call** the agent (not just read docs), use the
