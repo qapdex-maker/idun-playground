@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Auth Guide — NatureLM-Idun-5-MoE | Azure AI Foundry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "foundry-blue": "var(--accent-blue)", "foundry-blue-700": "var(--accent-blue-700)",
+          "foundry-purple": "var(--accent-purple)", "foundry-ink": "var(--ink)",
+          "foundry-surface": "var(--surface)", "foundry-surface-2": "var(--surface-2)",
+          "foundry-border": "var(--border)", "foundry-muted": "var(--muted)",
+          "foundry-success": "#107c10", "foundry-warn": "#d83b01", "foundry-bg": "var(--bg)"
+        },
+        "borderRadius": { "DEFAULT": "2px", "lg": "4px", "xl": "6px" },
+        "fontFamily": {
+          "segoe": ['"Segoe UI"', "Inter", "system-ui", "sans-serif"],
+          "foundry-serif": ['"Playfair Display"', "Georgia", "serif"],
+          "mono": ['"JetBrains Mono"', "monospace"]
+        },
+        "fontSize": {
+          "label": ["12px", {"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],
+          "display": ["40px", {"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],
+          "title": ["22px", {"lineHeight":"30px","fontWeight":"600"}],
+          "body": ["14px", {"lineHeight":"22px"}], "body-lg": ["16px", {"lineHeight":"26px"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  :root { --bg:#ffffff; --surface:#f5f5f5; --surface-2:#fafafa; --border:#e0e0e0; --ink:#1b1a19; --muted:#616161; --accent-blue:#0067B8; --accent-blue-700:#005A9E; --accent-purple:#5c2d91; }
+  .dark { --bg:#0e0e12; --surface:#16161c; --surface-2:#1c1c24; --border:#2c2c36; --ink:#f3f3f5; --muted:#9a9aa8; --accent-blue:#3b82f6; --accent-blue-700:#2563eb; --accent-purple:#8b5cf6; }
+  body { font-family:"Segoe UI",Inter,system-ui,sans-serif; -webkit-font-smoothing:antialiased; background-color:var(--bg); color:var(--ink); }
+  h1,h2,h3,.font-foundry { font-family:"Playfair Display",Georgia,serif; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; line-height:1; display:inline-block; }
+  .paper-shadow { box-shadow:0 1px 2px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.06); }
+  .dark .paper-shadow { box-shadow:0 1px 2px rgba(0,0,0,0.5),0 4px 18px rgba(0,0,0,0.45); }
+  .grid-bg { background-image: radial-gradient(circle at 16% 8%, rgba(139,92,246,0.16), transparent 44%), radial-gradient(circle at 88% 2%, rgba(59,130,246,0.10), transparent 40%), linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size:100% 100%,100% 100%,32px 32px,32px 32px; }
+  .code-block { font-family:"JetBrains Mono",monospace; font-size:13px; line-height:1.6; background:#0b0b0e; color:#e8e8e8; }
+  .copy-btn { cursor:pointer; }
+  .btn-foundry { background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue)); color:#fff; box-shadow:0 4px 16px rgba(139,92,246,0.30); }
+  .btn-foundry:hover { filter:brightness(1.08); box-shadow:0 6px 22px rgba(139,92,246,0.45); }
+  @keyframes pulse-soft { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+  .animate-pulse-soft { animation:pulse-soft 2s cubic-bezier(0.4,0,0.2,1) infinite; }
+  .purple-ring:focus { outline:none; box-shadow:0 0 0 2px rgba(139,92,246,0.5); }
+</style>
+</head>
+<body class="min-h-screen pb-32 selection:bg-foundry-purple/30">
+<header class="fixed top-0 w-full bg-foundry-bg/85 backdrop-blur border-b border-foundry-border z-50">
+  <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/playground.html" class="flex items-center gap-2 text-foundry-ink hover:text-foundry-purple transition-colors"><span class="material-symbols-outlined text-[22px]">arrow_back</span></a>
+      <div class="flex items-baseline gap-2">
+        <span class="font-segoe font-semibold text-[15px] text-foundry-ink">Azure AI Foundry</span>
+        <span class="text-foundry-muted text-[13px]">/</span>
+        <span class="font-segoe text-[13px] text-foundry-muted">Auth Guide</span>
+      </div>
+    </div>
+    <span class="chip px-3 py-1 bg-foundry-purple/15 text-foundry-purple rounded-full font-segoe text-[12px] font-semibold tracking-wide">Entra · Device-Code</span>
+  </div>
+</header>
+
+<main class="grid-bg min-h-screen pt-24 max-w-[1440px] mx-auto px-6">
+  <section class="py-8">
+    <div class="inline-flex items-center gap-2.5 px-4 py-1.5 bg-foundry-purple/15 text-foundry-purple rounded-full text-label font-segoe mb-6">
+      <span class="material-symbols-outlined text-[16px]">lock</span> ENTREA ID · BEARER TOKEN
+    </div>
+    <h1 class="font-foundry text-display text-foundry-ink mb-3">Authenticate to the endpoint</h1>
+    <p class="font-segoe text-body-lg text-foundry-muted max-w-2xl">The endpoint is protected by Microsoft Entra ID. Authenticate with a <strong class="text-foundry-ink">bearer token</strong> — no client secret required when using a public client (device-code or managed identity).</p>
+  </section>
+
+  <section class="pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 space-y-6">
+        <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-6">
+          <h2 class="font-foundry text-title text-foundry-ink mb-3">1 · Scope and tenant</h2>
+          <p class="font-segoe text-body text-foundry-muted mb-3">The OAuth scope <strong class="text-foundry-ink">must</strong> end in <code class="font-mono text-foundry-ink">/.default</code>:</p>
+          <div class="relative code-block rounded p-4 overflow-x-auto">
+            <button class="copy-btn absolute top-2 right-2 text-white/50 hover:text-white material-symbols-outlined text-[18px]" data-copy="https://ai.azure.com/.default">content_copy</button>
+            <pre class="text-white/90">https://ai.azure.com/.default</pre>
+          </div>
+          <p class="font-segoe text-body text-foundry-muted mt-3">Tenant: <code class="font-mono text-foundry-ink">885f01ab-7364-4484-be0a-231d541c9e7f</code> (QMFI-Research)</p>
+        </div>
+
+        <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-6">
+          <h2 class="font-foundry text-title text-foundry-ink mb-3">2 · Device-code flow (no Azure CLI)</h2>
+          <p class="font-segoe text-body text-foundry-muted mb-3">On Android/Termux the Azure CLI cannot be installed. Use the bundled script (wraps <code class="font-mono text-foundry-ink">azure-identity</code> DeviceCodeCredential):</p>
+          <div class="relative code-block rounded p-4 overflow-x-auto">
+            <button class="copy-btn absolute top-2 right-2 text-white/50 hover:text-white material-symbols-outlined text-[18px]" data-copy="pip install -r requirements.txt&#10;python3 scripts/device_code_login.py">content_copy</button>
+            <pre class="text-white/90">pip install -r requirements.txt
+python3 scripts/device_code_login.py</pre>
+          </div>
+          <p class="font-segoe text-body text-foundry-muted mt-3">The script prints a device code to <code class="font-mono text-foundry-ink">~/foundry_code.txt</code>. Open <a class="text-foundry-blue underline" href="https://login.microsoft.com/device" target="_blank">https://login.microsoft.com/device</a>, enter the code, sign in. The bearer token is written to <code class="font-mono text-foundry-ink">~/foundry_token.txt</code>.</p>
+        </div>
+
+        <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-6">
+          <h2 class="font-foundry text-title text-foundry-ink mb-3">3 · Use the token</h2>
+          <div class="relative code-block rounded p-4 overflow-x-auto">
+            <button class="copy-btn absolute top-2 right-2 text-white/50 hover:text-white material-symbols-outlined text-[18px]" data-copy="Authorization: Bearer **">content_copy</button>
+            <pre class="text-white/90">Authorization: Bearer **</pre>
+          </div>
+          <p class="font-segoe text-body text-foundry-muted mt-3">The router reads the token from <code class="font-mono text-foundry-ink">FOUNDRY_TOKEN</code>, <code class="font-mono text-foundry-ink">FOUNDRY_TOKEN_FILE</code>, or <code class="font-mono text-foundry-ink">~/foundry_token.txt</code> automatically.</p>
+        </div>
+
+        <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-6">
+          <h2 class="font-foundry text-title text-foundry-ink mb-3">Troubleshooting</h2>
+          <table class="w-full text-body font-segoe">
+            <thead><tr class="text-foundry-muted text-left"><th class="py-2 pr-3">Symptom</th><th class="py-2 pr-3">Cause</th><th class="py-2">Fix</th></tr></thead>
+            <tbody class="divide-y divide-foundry-border">
+              <tr><td class="py-2 pr-3 font-mono text-[13px]">AADSTS70011</td><td class="py-2 pr-3 text-foundry-muted">scope missing /.default</td><td class="py-2 text-foundry-ink">use https://ai.azure.com/.default</td></tr>
+              <tr><td class="py-2 pr-3 font-mono text-[13px]">invalid_grant</td><td class="py-2 pr-3 text-foundry-muted">app not public client</td><td class="py-2 text-foundry-ink">allow public client flows</td></tr>
+              <tr><td class="py-2 pr-3 font-mono text-[13px]">401 on call</td><td class="py-2 pr-3 text-foundry-muted">expired token</td><td class="py-2 text-foundry-ink">re-run device_code_login.py</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-6 lg:sticky lg:top-24">
+          <h2 class="font-foundry text-title text-foundry-ink mb-1">Live token status</h2>
+          <p class="font-segoe text-body text-foundry-muted mb-4">Probes the router → Foundry path. A 200 means the token is valid.</p>
+          <div id="auth-state" class="flex items-center gap-3 p-4 border border-foundry-border rounded bg-foundry-surface-2 mb-4">
+            <div id="auth-dot" class="w-3 h-3 rounded-full bg-foundry-border animate-pulse-soft"></div>
+            <span id="auth-text" class="font-segoe text-body text-foundry-muted">Prüfe…</span>
+          </div>
+          <button id="auth-check" class="btn-foundry w-full px-4 py-3 rounded font-segoe text-[13px] font-semibold hover:bg-foundry-purple/90 transition-colors">Token jetzt prüfen</button>
+          <pre id="auth-detail" class="code-block rounded p-4 mt-3 min-h-[80px] max-h-[240px] overflow-auto whitespace-pre-wrap text-white/90"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const root = document.documentElement;
+  const saved = localStorage.getItem('foundry-theme');
+  if (saved === 'light') root.classList.remove('dark'); else root.classList.add('dark');
+  document.querySelectorAll('.copy-btn').forEach(b => {
+    b.addEventListener('click', () => { navigator.clipboard.writeText(b.getAttribute('data-copy')); const o=b.textContent; b.textContent='check'; setTimeout(()=>b.textContent=o,1200); });
+  });
+  const dot = document.getElementById('auth-dot');
+  const txt = document.getElementById('auth-text');
+  const detail = document.getElementById('auth-detail');
+  async function check() {
+    txt.textContent = 'Prüfe Router → Foundry…'; dot.className='w-3 h-3 rounded-full bg-foundry-warn animate-pulse-soft';
+    try {
+      const resp = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model:'foundry:NatureLM-Idun-5-MoE', messages:[{role:'user',content:'reply OK'}] }) });
+      const data = await resp.json().catch(()=>({}));
+      if (resp.ok) { dot.className='w-3 h-3 rounded-full bg-emerald-400'; txt.textContent='Token gültig — Foundry erreichbar'; }
+      else { dot.className='w-3 h-3 rounded-full bg-foundry-warn'; txt.textContent='Token ungültig ('+resp.status+')'; }
+      detail.textContent = JSON.stringify(data, null, 2).slice(0,600);
+    } catch(e) { dot.className='w-3 h-3 rounded-full bg-foundry-warn'; txt.textContent='Router nicht erreichbar'; detail.textContent=e.message; }
+  }
+  document.getElementById('auth-check').onclick = check;
+  check();
+</script>
+</body>
+</html>

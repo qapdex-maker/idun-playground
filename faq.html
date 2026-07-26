@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FAQ — NatureLM-Idun-5-MoE | Azure AI Foundry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "foundry-blue": "var(--accent-blue)", "foundry-blue-700": "var(--accent-blue-700)",
+          "foundry-purple": "var(--accent-purple)", "foundry-ink": "var(--ink)",
+          "foundry-surface": "var(--surface)", "foundry-surface-2": "var(--surface-2)",
+          "foundry-border": "var(--border)", "foundry-muted": "var(--muted)",
+          "foundry-success": "#107c10", "foundry-warn": "#d83b01", "foundry-bg": "var(--bg)"
+        },
+        "borderRadius": { "DEFAULT": "2px", "lg": "4px", "xl": "6px" },
+        "fontFamily": {
+          "segoe": ['"Segoe UI"', "Inter", "system-ui", "sans-serif"],
+          "foundry-serif": ['"Playfair Display"', "Georgia", "serif"],
+          "mono": ['"JetBrains Mono"', "monospace"]
+        },
+        "fontSize": {
+          "label": ["12px", {"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],
+          "display": ["40px", {"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],
+          "title": ["22px", {"lineHeight":"30px","fontWeight":"600"}],
+          "body": ["14px", {"lineHeight":"22px"}], "body-lg": ["16px", {"lineHeight":"26px"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  :root { --bg:#ffffff; --surface:#f5f5f5; --surface-2:#fafafa; --border:#e0e0e0; --ink:#1b1a19; --muted:#616161; --accent-blue:#0067B8; --accent-blue-700:#005A9E; --accent-purple:#5c2d91; }
+  .dark { --bg:#0e0e12; --surface:#16161c; --surface-2:#1c1c24; --border:#2c2c36; --ink:#f3f3f5; --muted:#9a9aa8; --accent-blue:#3b82f6; --accent-blue-700:#2563eb; --accent-purple:#8b5cf6; }
+  body { font-family:"Segoe UI",Inter,system-ui,sans-serif; -webkit-font-smoothing:antialiased; background-color:var(--bg); color:var(--ink); }
+  h1,h2,h3,.font-foundry { font-family:"Playfair Display",Georgia,serif; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; line-height:1; display:inline-block; }
+  .paper-shadow { box-shadow:0 1px 2px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.06); }
+  .dark .paper-shadow { box-shadow:0 1px 2px rgba(0,0,0,0.5),0 4px 18px rgba(0,0,0,0.45); }
+  .grid-bg { background-image: radial-gradient(circle at 16% 8%, rgba(139,92,246,0.16), transparent 44%), radial-gradient(circle at 88% 2%, rgba(59,130,246,0.10), transparent 40%), linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size:100% 100%,100% 100%,32px 32px,32px 32px; }
+  .purple-ring:focus { outline:none; box-shadow:0 0 0 2px rgba(139,92,246,0.5); }
+  details > summary { list-style:none; cursor:pointer; }
+  details > summary::-webkit-details-marker { display:none; }
+  details[open] summary .chev { transform:rotate(90deg); }
+  .chev { transition:transform 0.2s ease; color:var(--accent-purple); }
+</style>
+</head>
+<body class="min-h-screen pb-32 selection:bg-foundry-purple/30">
+<header class="fixed top-0 w-full bg-foundry-bg/85 backdrop-blur border-b border-foundry-border z-50">
+  <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/playground.html" class="flex items-center gap-2 text-foundry-ink hover:text-foundry-purple transition-colors"><span class="material-symbols-outlined text-[22px]">arrow_back</span></a>
+      <div class="flex items-baseline gap-2">
+        <span class="font-segoe font-semibold text-[15px] text-foundry-ink">Azure AI Foundry</span>
+        <span class="text-foundry-muted text-[13px]">/</span>
+        <span class="font-segoe text-[13px] text-foundry-muted">FAQ</span>
+      </div>
+    </div>
+    <span class="chip px-3 py-1 bg-foundry-purple/15 text-foundry-purple rounded-full font-segoe text-[12px] font-semibold tracking-wide">NatureLM-Idun-5-MoE</span>
+  </div>
+</header>
+
+<main class="grid-bg min-h-screen pt-24 max-w-[1440px] mx-auto px-6">
+  <section class="py-8">
+    <div class="inline-flex items-center gap-2.5 px-4 py-1.5 bg-foundry-purple/15 text-foundry-purple rounded-full text-label font-segoe mb-6">
+      <span class="material-symbols-outlined text-[16px]">quiz</span> HÄUFIGE FRAGEN
+    </div>
+    <h1 class="font-foundry text-display text-foundry-ink mb-3">Frequently asked questions</h1>
+    <p class="font-segoe text-body-lg text-foundry-muted max-w-2xl">Common questions about the blueprint, the responses endpoint, and Entra authentication.</p>
+    <div class="mt-6 max-w-xl">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-foundry-muted text-[20px]">search</span>
+        <input id="faq-search" type="text" placeholder="FAQ durchsuchen…" class="font-segoe text-body w-full border border-foundry-border rounded-full pl-11 pr-4 py-3 bg-foundry-surface-2 text-foundry-ink focus:border-foundry-purple purple-ring outline-none"/>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-24">
+    <div id="faq-list" class="space-y-4 max-w-3xl"></div>
+    <p id="faq-empty" class="font-segoe text-body text-foundry-muted hidden">Keine Treffer.</p>
+  </section>
+</main>
+
+<script>
+  const root = document.documentElement;
+  const saved = localStorage.getItem('foundry-theme');
+  if (saved === 'light') root.classList.remove('dark'); else root.classList.add('dark');
+  const FAQ = [
+    { q:"Why do I get 400 invalid_payload?", a:"When the agent is in the URL path, the request body must set \"model\": \"model-router\". Using the agent name as model returns invalid_payload." },
+    { q:"Which model name do I send?", a:"Send \"model\": \"model-router\". The agent NatureLM-Idun-5-MoE is bound to a model-router that selects the underlying model (gpt-5.4-2026-03-05 in the verified deployment)." },
+    { q:"Do I need a client secret?", a:"No. Use Entra device-code (public client) or a managed identity. The scope is https://ai.azure.com/.default." },
+    { q:"Why does Azure CLI not install on Termux?", a:"pip install azure-cli fails building psutil on Android, and proot-distro is blocked by the Termux-exec loader. Use the bundled device_code_login.py for tokens, and run az from a normal machine for deployment." },
+    { q:"How do I call this from an MCP client?", a:"The docs-mcp/server.py exposes the documentation as callable MCP tools (list_docs, get_doc, search_docs). For live agent calls, use src/foundry_client.py or your own MCP wrapper around the responses endpoint." }
+  ];
+  const list = document.getElementById('faq-list');
+  const empty = document.getElementById('faq-empty');
+  function render(filter) {
+    list.innerHTML = "";
+    const f = (filter||"").toLowerCase();
+    let n = 0;
+    FAQ.forEach(item => {
+      if (f && !item.q.toLowerCase().includes(f) && !item.a.toLowerCase().includes(f)) return;
+      n++;
+      const d = document.createElement('details');
+      d.className = "bg-foundry-surface border border-foundry-border rounded-lg paper-shadow group";
+      d.innerHTML = `<summary class="flex items-center justify-between p-5"><span class="font-segoe text-body font-medium text-foundry-ink">${item.q}</span><span class="material-symbols-outlined chev text-[20px]">chevron_right</span></summary><div class="px-5 pb-5 pt-0 font-segoe text-body text-foundry-muted leading-relaxed">${item.a}</div>`;
+      list.appendChild(d);
+    });
+    empty.classList.toggle('hidden', n > 0);
+  }
+  document.getElementById('faq-search').addEventListener('input', e => render(e.target.value));
+  render("");
+</script>
+</body>
+</html>

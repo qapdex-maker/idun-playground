@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Azure AI Foundry — NatureLM-Idun-5-MoE Playground</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          // mapped to CSS vars so dark/light flip automatically
+          "foundry-blue": "var(--accent-blue)",
+          "foundry-blue-700": "var(--accent-blue-700)",
+          "foundry-purple": "var(--accent-purple)",
+          "foundry-ink": "var(--ink)",
+          "foundry-surface": "var(--surface)",
+          "foundry-surface-2": "var(--surface-2)",
+          "foundry-border": "var(--border)",
+          "foundry-muted": "var(--muted)",
+          "foundry-success": "#107c10",
+          "foundry-warn": "#d83b01",
+          "foundry-bg": "var(--bg)"
+        },
+        "borderRadius": { "DEFAULT": "2px", "lg": "4px", "xl": "6px" },
+        "fontFamily": {
+          "segoe": ['"Segoe UI"', "Inter", "system-ui", "sans-serif"],
+          "foundry-serif": ['"Playfair Display"', "Georgia", "serif"],
+          "mono": ['"JetBrains Mono"', "monospace"]
+        },
+        "fontSize": {
+          "label": ["12px", {"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],
+          "display": ["40px", {"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],
+          "title": ["22px", {"lineHeight":"30px","fontWeight":"600"}],
+          "body": ["14px", {"lineHeight":"22px"}],
+          "body-lg": ["16px", {"lineHeight":"26px"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  /* Light (default fallback) */
+  :root {
+    --bg: #ffffff;
+    --surface: #f5f5f5;
+    --surface-2: #fafafa;
+    --border: #e0e0e0;
+    --ink: #1b1a19;
+    --muted: #616161;
+    --accent-blue: #0067B8;
+    --accent-blue-700: #005A9E;
+    --accent-purple: #5c2d91;
+  }
+  /* Azure AI Foundry dark theme — deep anthracite + foundry purple */
+  .dark {
+    --bg: #0e0e12;
+    --surface: #16161c;
+    --surface-2: #1c1c24;
+    --border: #2c2c36;
+    --ink: #f3f3f5;
+    --muted: #9a9aa8;
+    --accent-blue: #3b82f6;
+    --accent-blue-700: #2563eb;
+    --accent-purple: #8b5cf6;
+  }
+  body {
+    font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--bg);
+    color: var(--ink);
+  }
+  h1, h2, h3, .font-foundry { font-family: "Playfair Display", Georgia, serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; line-height: 1; display:inline-block; }
+  .paper-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06); }
+  .dark .paper-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 4px 18px rgba(0,0,0,0.45); }
+  .grid-bg { background-image: radial-gradient(circle at 18% 12%, rgba(139,92,246,0.10), transparent 42%),
+             radial-gradient(circle at 86% 0%, rgba(59,130,246,0.07), transparent 38%),
+             linear-gradient(#ededed 1px, transparent 1px), linear-gradient(90deg, #ededed 1px, transparent 1px);
+             background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px; }
+  .dark .grid-bg { background-image: radial-gradient(circle at 16% 8%, rgba(139,92,246,0.16), transparent 44%),
+             radial-gradient(circle at 88% 2%, rgba(59,130,246,0.10), transparent 40%),
+             linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+             linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+             background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px; }
+  .terminal-bg { background-color: #0b0b0e; }
+  .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.35); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+  .cursor-blink { display:inline-block; width:8px; height:14px; background: currentColor; animation: blink 1s step-end infinite; vertical-align: middle; }
+  .spinner { width:16px; height:16px; border:2px solid rgba(139,92,246,0.25); border-top-color:var(--accent-purple); border-radius:50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status-dot { width:8px; height:8px; border-radius:9999px; }
+  .chip { font-family:"Segoe UI",sans-serif; font-size:11px; font-weight:600; letter-spacing:0.03em; }
+  .glow-purple { box-shadow: 0 0 0 1px rgba(139,92,246,0.45), 0 6px 22px rgba(139,92,246,0.22); }
+  .btn-foundry {
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(139,92,246,0.30);
+  }
+  .btn-foundry:hover { filter: brightness(1.08); box-shadow: 0 6px 22px rgba(139,92,246,0.45); }
+  .btn-foundry:disabled { opacity: 0.55; box-shadow: none; filter: grayscale(0.3); }
+  .topbar-logo { background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .purple-ring:focus { outline: none; box-shadow: 0 0 0 2px rgba(139,92,246,0.5); }
+  .cap-card { border: 1px solid var(--border); background: var(--surface-2); }
+  .cap-card:hover { border-color: var(--accent-purple); box-shadow: 0 0 0 1px rgba(139,92,246,0.4); }
+</style>
+</head>
+<body class="min-h-screen pb-24 selection:bg-foundry-purple/30">
+<!-- Foundry top bar -->
+<header class="fixed top-0 w-full bg-foundry-bg/85 backdrop-blur border-b border-foundry-border z-50">
+  <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-[22px] glow-purple text-foundry-purple rounded-lg">auto_awesome</span>
+      <div class="flex items-baseline gap-2">
+        <span class="font-segoe font-semibold text-[15px] text-foundry-ink">Azure AI Foundry</span>
+        <span class="text-foundry-muted text-[13px]">/</span>
+        <span class="font-segoe text-[13px] text-foundry-muted">NatureLM-Idun-5-MoE</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="chip px-3 py-1 bg-foundry-purple/15 text-foundry-purple rounded-full">Responses Protocol</span>
+      <button id="theme-toggle" class="material-symbols-outlined text-[20px] text-foundry-muted hover:text-foundry-purple cursor-pointer">light_mode</button>
+    </div>
+  </div>
+</header>
+
+<main class="grid-bg min-h-screen pt-24 max-w-[1440px] mx-auto px-6">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <h1 class="font-foundry text-display text-foundry-ink">Agent Playground</h1>
+      <p class="font-segoe text-foundry-muted text-body mt-1">Live-Thread gegen den <span class="text-foundry-purple font-semibold">NatureLM-Idun-5-MoE</span> Agent · Azure AI Foundry</p>
+    </div>
+    <div class="text-right">
+      <div class="chip text-foundry-muted">PROJECT</div>
+      <div class="font-mono text-[13px] text-foundry-ink">qmfi-research-project</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- LEFT: Agent / capabilities -->
+    <aside class="lg:col-span-3 space-y-4">
+      <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg glow-purple flex items-center justify-center" style="background:linear-gradient(135deg,rgba(139,92,246,0.18),rgba(59,130,246,0.18))">
+            <span class="material-symbols-outlined text-foundry-purple">smart_toy</span>
+          </div>
+          <div>
+            <div class="font-segoe font-semibold text-[15px] text-foundry-ink">NatureLM-Idun-5-MoE</div>
+            <div class="chip text-foundry-muted">Agent Service · v11</div>
+          </div>
+        </div>
+        <dl class="text-[13px] space-y-2 mt-3">
+          <div class="flex justify-between"><dt class="text-foundry-muted">Resource</dt><dd class="font-mono text-foundry-ink">qmfi-research-project-resource</dd></div>
+          <div class="flex justify-between"><dt class="text-foundry-muted">Model (via router)</dt><dd class="font-mono text-foundry-ink">gpt-5.4-2026-03-05</dd></div>
+          <div class="flex justify-between"><dt class="text-foundry-muted">Auth</dt><dd class="font-segoe text-foundry-success">Entra Bearer</dd></div>
+          <div class="flex justify-between"><dt class="text-foundry-muted">Scope</dt><dd class="font-mono text-foundry-ink">ai.azure.com/.default</dd></div>
+        </dl>
+      </div>
+
+      <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5">
+        <div class="chip text-foundry-muted mb-3">AGENT CAPABILITIES</div>
+        <div class="space-y-2">
+          <div class="cap-card flex items-center gap-3 p-2 rounded">
+            <span class="material-symbols-outlined text-[18px] text-foundry-blue">public</span>
+            <div><div class="font-segoe text-[13px] text-foundry-ink">web_search</div><div class="text-[11px] text-foundry-muted">Live web grounding</div></div>
+          </div>
+          <div class="cap-card flex items-center gap-3 p-2 rounded">
+            <span class="material-symbols-outlined text-[18px] text-foundry-purple">psychology</span>
+            <div><div class="font-segoe text-[13px] text-foundry-ink">memory_search</div><div class="text-[11px] text-foundry-muted">Session memory</div></div>
+          </div>
+        </div>
+        <div class="mt-3 text-[11px] text-foundry-muted leading-relaxed">Request-Shape: <code class="font-mono text-foundry-ink">{"model":"model-router","input":"…"}</code></div>
+      </div>
+
+      <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5">
+        <div class="chip text-foundry-muted mb-3">BACKEND STATUS</div>
+        <div id="backend-list" class="space-y-2"></div>
+        <div class="mt-4 pt-3 border-t border-foundry-border flex flex-col gap-1">
+          <div class="flex justify-between text-[12px]"><span class="text-foundry-muted">ROUTER UPTIME</span><span id="router-uptime" class="font-mono font-semibold text-foundry-purple">0:00:00</span></div>
+          <div class="flex justify-between text-[12px]"><span class="text-foundry-muted">LAST CALL</span><span id="last-latency" class="font-mono font-semibold text-foundry-ink">—</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER: Playground thread -->
+    <section class="lg:col-span-6 bg-foundry-surface border border-foundry-border rounded-lg paper-shadow flex flex-col overflow-hidden">
+      <div class="p-5 border-b border-foundry-border flex items-center justify-between">
+        <div>
+          <h2 class="font-foundry text-title text-foundry-ink">Prompt Lab</h2>
+          <p class="font-segoe text-[13px] text-foundry-muted">Thread gegen das Routing-Backend</p>
+        </div>
+        <select id="model" class="font-segoe text-[13px] border border-foundry-border rounded px-3 py-2 bg-foundry-surface-2 text-foundry-ink focus:border-foundry-purple purple-ring outline-none">
+          <option value="foundry:NatureLM-Idun-5-MoE">foundry:NatureLM-Idun-5-MoE</option>
+          <option value="aoai:gpt-4o">aoai:gpt-4o (Azure OpenAI)</option>
+          <option value="cloudflare:dynamic/Idun-Instruct-VL-BitNet">cloudflare:dynamic/Idun-Instruct-VL-BitNet</option>
+        </select>
+      </div>
+
+      <div class="p-5 flex-grow flex flex-col gap-4 min-h-[420px]">
+        <div class="flex flex-wrap gap-2" id="examples"></div>
+        <textarea id="prompt" rows="4" class="font-segoe text-body w-full border border-foundry-border rounded p-4 bg-foundry-surface-2 text-foundry-ink resize-none focus:border-foundry-purple purple-ring outline-none" placeholder="Prompt eingeben…"></textarea>
+        <div class="flex items-center justify-between">
+          <span id="status" class="font-segoe text-[13px] text-foundry-muted">Bereit.</span>
+          <div class="flex items-center gap-2">
+            <button id="retry" class="hidden bg-foundry-surface-2 border border-foundry-purple text-foundry-purple px-5 py-2.5 rounded font-segoe text-[13px] font-semibold flex items-center gap-2 hover:bg-foundry-purple/10 transition-colors">
+              <span class="material-symbols-outlined text-[18px]">refresh</span>
+              <span>Erneut versuchen</span>
+            </button>
+            <button id="send" class="btn-foundry px-6 py-2.5 rounded font-segoe text-[13px] font-semibold flex items-center gap-2 transition-all disabled:opacity-50">
+              <span id="send-icon" class="material-symbols-outlined text-[18px]">send</span>
+              <span id="send-label">Senden</span>
+            </button>
+          </div>
+        </div>
+        <!-- result: trace (agent steps) + final answer -->
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">account_tree</span> AGENT TRACE</div>
+            <div id="trace" class="space-y-2 max-h-[320px] overflow-y-auto custom-scrollbar"></div>
+          </div>
+          <div>
+            <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat</span> ANTWORT</div>
+            <div id="answer" class="font-segoe text-body text-foundry-ink whitespace-pre-wrap bg-foundry-surface-2 border border-foundry-border rounded p-4 min-h-[120px] max-h-[480px] overflow-y-auto custom-scrollbar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Telemetry stream -->
+    <aside class="lg:col-span-3">
+      <div class="terminal-bg text-white rounded-lg paper-shadow p-5 h-full min-h-[520px] flex flex-col overflow-hidden border border-foundry-border">
+        <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-foundry-purple">terminal</span>
+            <span class="chip tracking-widest uppercase opacity-80">router_telemetry</span>
+          </div>
+          <div class="flex items-center gap-2"><div class="status-dot bg-emerald-400 animate-pulse"></div><span class="text-[10px] font-bold text-emerald-400">LIVE</span></div>
+        </div>
+        <div id="terminal-output" class="font-mono text-[12px] flex-grow overflow-y-auto custom-scrollbar space-y-1 text-white/70">
+          <div id="log-content" class="inline-block w-full"></div>
+          <div class="inline-block" id="cursor-line"><span class="cursor-blink" style="color:var(--accent-purple)">_</span></div>
+        </div>
+        <div id="uptime-clock" class="mt-3 pt-3 border-t border-white/10 text-[11px] font-mono text-white/50 tabular-nums">UPTIME 0:00:00</div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+  // Theme: default dark, persist choice
+  const root = document.documentElement;
+  const themeToggle = document.getElementById('theme-toggle');
+  const saved = localStorage.getItem('foundry-theme');
+  if (saved === 'light') { root.classList.remove('dark'); themeToggle.textContent = 'dark_mode'; }
+  else { root.classList.add('dark'); themeToggle.textContent = 'light_mode'; }
+  themeToggle.addEventListener('click', () => {
+    root.classList.toggle('dark');
+    const nowDark = root.classList.contains('dark');
+    themeToggle.textContent = nowDark ? 'light_mode' : 'dark_mode';
+    localStorage.setItem('foundry-theme', nowDark ? 'dark' : 'light');
+  });
+
+  const EXAMPLES = [
+    { label: "Nachhaltigkeit", text: "Fasse in einem Satz zusammen, was Contoso aktuell im Bereich Nachhaltigkeit kommuniziert." },
+    { label: "Vertrieb Q4", text: "Contoso verkaufte im Q4 1.620 Lizenzen bei gesamt 5.650 im Jahr. Berechne das stärkste Quartal und den Gesamtumsatz bei 12.000 €/Lizenz." },
+    { label: "Supply Chain", text: "Erkläre anhand von Contoso, wie ein Lieferketten-Dashboard Emissionsberichte automatisiert." },
+    { label: "Free", text: "" }
+  ];
+  const examplesEl = document.getElementById('examples');
+  EXAMPLES.forEach((ex) => {
+    const b = document.createElement('button');
+    b.className = "font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded-full text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors";
+    b.textContent = ex.label;
+    b.onclick = () => { if (ex.text) document.getElementById('prompt').value = ex.text; document.getElementById('prompt').focus(); };
+    examplesEl.appendChild(b);
+  });
+
+  const output = document.getElementById('log-content');
+  const terminal = document.getElementById('terminal-output');
+  function logEvent(text, kind) {
+    const now = new Date();
+    const time = `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]`;
+    const p = document.createElement('p'); p.className = "flex gap-2";
+    const ts = document.createElement('span'); ts.className = "opacity-50 flex-shrink-0"; ts.style.color = "var(--accent-purple)"; ts.textContent = time;
+    const tx = document.createElement('span');
+    if (kind === 'event') tx.className = "text-sky-300";
+    else if (kind === 'warn') tx.className = "text-amber-400";
+    else if (kind === 'error') tx.className = "text-red-400";
+    else if (kind === 'ok') tx.className = "text-emerald-400";
+    else tx.className = "text-white/70";
+    tx.textContent = text;
+    p.appendChild(ts); p.appendChild(tx); output.appendChild(p);
+    while (output.children.length > 60) output.removeChild(output.firstChild);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+  logEvent("INFO: Router thread pool ready — ThreadingHTTPServer active.", "");
+  logEvent("EVENT: Telemetry stream live — reading real router responses.", "event");
+  logEvent("WARN: Azure OpenAI key not set — aoai:* degraded until AZURE_OPENAI_API_KEY supplied.", "warn");
+
+  async function healthPing() {
+    const t0 = performance.now();
+    try {
+      const resp = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model:'foundry:NatureLM-Idun-5-MoE', messages:[{role:'user',content:'reply OK'}] }) });
+      const ms = Math.round(performance.now() - t0);
+      const data = await resp.json().catch(()=>({}));
+      if (resp.ok) logEvent(`OK: foundry reachable (${ms} ms).`, "ok");
+      else if (resp.status === 403) logEvent(`ERR: foundry 403 — ${data.error||'token invalid'} (${ms} ms).`, "error");
+      else logEvent(`WARN: foundry health ${resp.status} — ${data.error||''} (${ms} ms).`, "warn");
+    } catch (e) { logEvent(`ERR: router unreachable — ${e.message}.`, "error"); }
+  }
+  healthPing();
+  setInterval(healthPing, 30000);
+
+  let secs = 0;
+  const uptimeEl = document.getElementById('uptime-clock');
+  const routerUp = document.getElementById('router-uptime');
+  setInterval(() => {
+    secs++;
+    const h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=secs%60;
+    const str=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    uptimeEl.textContent=`UPTIME ${str}`; routerUp.textContent=str;
+  }, 1000);
+
+  const BACKENDS = [
+    { id:"foundry", label:"Foundry · NatureLM-Idun-5-MoE", icon:"smart_toy" },
+    { id:"aoai", label:"Azure OpenAI · gpt-4o", icon:"hub" },
+    { id:"cloudflare", label:"Cloudflare · Idun-Instruct-VL", icon:"cloud" }
+  ];
+  const backendList = document.getElementById('backend-list');
+  function renderBackends(state) {
+    backendList.innerHTML = "";
+    BACKENDS.forEach(b => {
+      const st = state[b.id] || "unknown";
+      const color = st==="ok" ? "bg-emerald-500" : st==="degraded" ? "bg-amber-500" : st==="down" ? "bg-red-500" : "bg-foundry-border";
+      const txt = st==="ok" ? "ERREICHBAR" : st==="degraded" ? "DEGRADED" : st==="down" ? "NICHT ERREICHBAR" : "…";
+      const row = document.createElement('div');
+      row.className = "flex items-center justify-between p-2.5 border border-foundry-border rounded bg-foundry-surface-2";
+      row.innerHTML = `<div class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px] text-foundry-muted">${b.icon}</span><span class="font-segoe text-[12px] text-foundry-ink">${b.label}</span></div><div class="flex items-center gap-2"><span class="chip text-foundry-muted">${txt}</span><span class="status-dot ${color}"></span></div>`;
+      backendList.appendChild(row);
+    });
+  }
+  renderBackends({ foundry:"ok", aoai:"degraded", cloudflare:"degraded" });
+
+  const sendBtn = document.getElementById('send');
+  const sendLabel = document.getElementById('send-label');
+  const sendIcon = document.getElementById('send-icon');
+  const statusEl = document.getElementById('status');
+  const answerEl = document.getElementById('answer');
+  const latencyEl = document.getElementById('last-latency');
+  const retryBtn = document.getElementById('retry');
+  const traceEl = document.getElementById('trace');
+  function showRetry(){ retryBtn.classList.remove('hidden'); }
+  function hideRetry(){ retryBtn.classList.add('hidden'); }
+  retryBtn.addEventListener('click', () => { hideRetry(); sendPrompt(); });
+
+  // Render Idun's agent trajectory (reasoning steps + tool calls) as a vertical trace
+  function renderTrace(steps) {
+    traceEl.innerHTML = "";
+    if (!Array.isArray(steps) || steps.length === 0) {
+      traceEl.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Keine Schritte — Agent hat direkt geantwortet.</div>';
+      return;
+    }
+    let n = 0;
+    steps.forEach((s) => {
+      n++;
+      const row = document.createElement('div');
+      row.className = "cap-card rounded p-3 flex gap-3 items-start";
+      if (s.kind === "tool") {
+        const searching = s.status === "searching";
+        const done = s.status === "completed";
+        const badge = searching
+          ? '<span class="chip text-foundry-blue flex items-center gap-1"><span class="spinner inline-block" style="width:10px;height:10px;border-width:1.5px"></span>SUCHT…</span>'
+          : done
+            ? '<span class="chip text-emerald-400">✓ DONE</span>'
+            : `<span class="chip text-foundry-muted">${s.status.toUpperCase()}</span>`;
+        row.innerHTML = `
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(59,130,246,0.15)">
+            <span class="material-symbols-outlined text-[18px] text-foundry-blue">public</span>
+          </div>
+          <div class="flex-grow min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-segoe text-[12px] font-semibold text-foundry-ink">${n}. Tool · web_search</span>
+              ${badge}
+            </div>
+            <div class="font-mono text-[11px] text-foundry-muted mt-1 truncate">${s.query ? s.query : "(query)"}</div>
+          </div>`;
+      } else {
+        const preview = (s.text || "").replace(/\n/g, " ").slice(0, 140);
+        row.innerHTML = `
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(139,92,246,0.15)">
+            <span class="material-symbols-outlined text-[18px] text-foundry-purple">psychology</span>
+          </div>
+          <div class="flex-grow min-w-0">
+            <div class="font-segoe text-[12px] font-semibold text-foundry-ink">${n}. ${s.kind === "reasoning" ? "Reasoning / Plan" : "Message"}</div>
+            <div class="text-[12px] text-foundry-muted mt-1 leading-snug">${preview}${preview.length >= 140 ? "…" : ""}</div>
+          </div>`;
+      }
+      traceEl.appendChild(row);
+    });
+    traceEl.scrollTop = traceEl.scrollHeight;
+  }
+  let busy = false;
+  async function sendPrompt() {
+    if (busy) return;
+    const model = document.getElementById('model').value;
+    const prompt = document.getElementById('prompt').value.trim();
+    if (!prompt) { statusEl.textContent = "Bitte einen Prompt eingeben."; return; }
+    busy = true; sendBtn.disabled = true; sendIcon.textContent="hourglass_top"; sendLabel.textContent="Denkt…";
+    statusEl.innerHTML = '<span class="spinner inline-block align-middle mr-2"></span>Anfrage an ' + model + ' …';
+    answerEl.textContent = "";
+    traceEl.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Agent denkt… (Schritte erscheinen live)</div>';
+    logEvent(`EVENT: prompt -> ${model} (${prompt.slice(0,48)}${prompt.length>48?'…':''})`, "event");
+    const t0 = performance.now();
+    try {
+      const resp = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model, messages:[{role:'user',content:prompt}] }) });
+      const ms = Math.round(performance.now() - t0);
+      if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      // render error readably (never [object Object])
+      let msg = err.error;
+      if (typeof msg === "object" && msg !== null) msg = JSON.stringify(msg);
+      if (!msg) msg = "Unbekannt (HTTP " + resp.status + ")";
+      answerEl.textContent = "Fehler " + resp.status + ": " + msg;
+      statusEl.textContent = "Backend meldet " + resp.status + " in " + ms + " ms.";
+      logEvent(`ERR: ${model} -> HTTP ${resp.status} (${ms} ms) ${msg}`, "error");
+      // transient upstream error (Foundry 400/429) -> offer retry
+      if (resp.status === 400 || resp.status === 429) {
+        logEvent(`WARN: transient ${resp.status} from Foundry — retry recommended.`, "warn");
+        showRetry();
+      }
+      } else {
+        const data = await resp.json();
+        answerEl.textContent = (data.choices && data.choices[0] && data.choices[0].message.content) || JSON.stringify(data);
+        if (Array.isArray(data.steps)) renderTrace(data.steps);
+        statusEl.textContent = "Antwort von " + model + " in " + ms + " ms.";
+        latencyEl.textContent = ms + " ms";
+        logEvent(`OK: ${model} -> HTTP 200 (${ms} ms)`, "ok");
+        hideRetry();
+      }
+    } catch (e) {
+      answerEl.textContent = "Verbindungsfehler: " + e.message;
+      statusEl.textContent = "Router nicht erreichbar?";
+      logEvent(`ERR: ${model} -> ${e.message}`, "error");
+    }
+    busy = false; sendBtn.disabled = false; sendIcon.textContent="send"; sendLabel.textContent="Senden";
+  }
+  sendBtn.onclick = sendPrompt;
+</script>
+</body>
+</html>
