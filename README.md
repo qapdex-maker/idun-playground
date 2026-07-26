@@ -34,3 +34,26 @@ No secrets in the HTML — the router reads `FOUNDRY_TOKEN` (and `AZURE_OPENAI_A
 
 For a Python client + CLI against the same agent, see the companion repo
 [idun-sdk](https://github.com/qapdex-maker/idun-sdk).
+
+## MCP — docs mirror
+
+The playground docs are exposed as a GitMCP server so AI tools can read them
+live (prefers `llms.txt`):
+
+```
+https://gitmcp.io/qapdex-maker/idun-playground
+```
+
+For stdio-only clients (Claude Desktop, Cline, Msty):
+
+```json
+{ "mcpServers": { "idun-playground-docs": { "command": "npx", "args": ["mcp-remote", "https://gitmcp.io/qapdex-maker/idun-playground"] } } }
+```
+
+To actually **call** the agent (not just read docs), use the
+[idun-sdk MCP server](https://github.com/qapdex-maker/idun-sdk#1-idun-mcp-server-stdlib-only-local)
+(`idun_chat` / `idun_trace` over stdio). The recommended stack for a foreign
+agent is both: `idun` (invoke) + `idun-playground-docs` (look up the playground
+architecture on its own).
+
+[![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/qapdex-maker/idun-playground)](https://gitmcp.io/qapdex-maker/idun-playground)

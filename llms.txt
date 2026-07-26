@@ -1,0 +1,32 @@
+# Idun Playground
+
+> Azure AI Foundry dark-mode playground for the NatureLM-Idun-5-MoE agent
+> (codename Idun), built in the ai.azure.com visual style.
+
+## Documentation
+
+- [README](README.md) — run, files, architecture
+- [ROADMAP](ROADMAP.md) — status quo + phases 2-4
+- [Playground doc](docs/playground.md) — Microsoft Learn-style how-to
+
+## What it is
+
+- `playground.html` — Contoso prompt lab + **agent trace panel** (live reasoning +
+  web_search tool calls) + live telemetry terminal. No chatbot wheel.
+- `api-reference.html` / `auth-guide.html` / `faq.html` — dark Foundry-standard subpages.
+- `server.py` — multi-backend router (ThreadingHTTPServer, port 9001) holding
+  credentials server-side; relays the `steps` array from the Foundry agent.
+
+## Run
+
+```bash
+export FOUNDRY_TOKEN="$(cat ~/foundry_token.txt)"
+cd idun-playground
+python3 server.py
+# open http://127.0.0.1:9001/playground.html
+```
+
+## Companion repos
+
+- SDK + CLI: https://github.com/qapdex-maker/idun-sdk
+- GitMCP docs mirror: https://gitmcp.io/qapdex-maker/idun-playground
