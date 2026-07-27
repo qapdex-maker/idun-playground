@@ -56,15 +56,34 @@ def _run_complete(prompt, max_tokens=4096):
 
 
 class Handler(BaseHTTPRequestHandler):
+    # Security headers applied to EVERY response (static, errors, API) via the
+    # BaseHTTPRequestHandler.end_headers() hook — not just CORS paths.
+    def end_headers(self):
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
-    def _body(self):
+    # Reject requests whose Host header does not match our listener, to
+    # prevent DNS-rebinding / Host-spoofing against the local agent endpoint.
+    # Exact authority match only — substrings (localhost.attacker.example) bypass
+    # the check, so we compare parsed host:port, not substrings.
+    def _host_ok(self):
+        host = (self.headers.get("Host") or "").split(":")[0].strip().lower()
+        allowed = {"localhost", "127.0.0.1", "::1", "0.0.0.0", "[::]"}
+        return host in allowed
+
+    def _body(self, max_bytes=1 << 20):  # 1 MiB cap, anti-DoS
         length = int(self.headers.get("Content-Length", 0))
         if not length:
             return {}
+        if length > max_bytes:
+            raise ValueError("payload too large")
         try:
             return json.loads(self.rfile.read(length).decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
@@ -113,9 +132,15 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        if not self._host_ok():
+            self.send_error(403, "Host not allowed")
+            return
         self._static(urlparse(self.path).path)
 
     def do_POST(self):
+        if not self._host_ok():
+            self.send_error(403, "Host not allowed")
+            return
         route = urlparse(self.path).path
         try:
             if route == "/api/chat":
@@ -156,9 +181,17 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self.send_error(404)
         except RuntimeError as e:
-            self._json({"error": str(e)}, code=500)
+            try:
+                self._json({"error": str(e)}, code=500)
+            except BrokenPipeError:
+                pass  # client disconnected before we could respond
+        except BrokenPipeError:
+            pass  # client closed the connection (e.g. request timeout)
         except Exception as e:  # noqa: BLE001 - surface as JSON, not HTML traceback
-            self._json({"error": f"{type(e).__name__}: {e}"}, code=500)
+            try:
+                self._json({"error": f"{type(e).__name__}: {e}"}, code=500)
+            except BrokenPipeError:
+                pass
 
     def log_message(self, fmt, *args):
         # quieter than default
@@ -166,7 +199,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    # Bind to loopback only — this is a local agent router, not a public server.
+    # Avoids exposing the Foundry-backed endpoint on all interfaces (Ruff S104).
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Idun router on http://localhost:{PORT}  (Ctrl+C to stop)")
     try:
         server.serve_forever()
