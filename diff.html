@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Azure AI Foundry — Idun Side-by-Side Trace Diff</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "foundry-blue": "var(--accent-blue)",
+          "foundry-purple": "var(--accent-purple)",
+          "foundry-ink": "var(--ink)",
+          "foundry-surface": "var(--surface)",
+          "foundry-surface-2": "var(--surface-2)",
+          "foundry-border": "var(--border)",
+          "foundry-muted": "var(--muted)",
+          "foundry-success": "#107c10",
+          "foundry-warn": "#d83b01",
+          "foundry-bg": "var(--bg)"
+        },
+        "borderRadius": { "DEFAULT": "2px", "lg": "4px", "xl": "6px" },
+        "fontFamily": {
+          "segoe": ['"Segoe UI"', "Inter", "system-ui", "sans-serif"],
+          "foundry-serif": ['"Playfair Display"', "Georgia", "serif"],
+          "mono": ['"JetBrains Mono"', "monospace"]
+        }
+      }
+    }
+  };
+</script>
+<style>
+  :root {
+    --bg: #0e0e12; --surface: #16161c; --surface-2: #1d1d25;
+    --border: #2a2a35; --ink: #f3f3f7; --muted: #9a9aae;
+    --accent-purple: #8b5cf6; --accent-blue: #3b82f6;
+  }
+  html:not(.dark) {
+    --bg: #f4f4f8; --surface: #ffffff; --surface-2: #eef0f6;
+    --border: #d8dae6; --ink: #15151c; --muted: #5a5a72;
+    --accent-purple: #7c3aed; --accent-blue: #2563eb;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: "Segoe UI", Inter, system-ui, sans-serif; }
+  .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .btn-foundry { background: var(--accent-purple); color: #fff; }
+  .btn-foundry:hover { filter: brightness(1.08); }
+  .chip { font-size: 11px; letter-spacing: 0.08em; font-weight: 600; text-transform: uppercase; }
+  .step-tool { border-left: 3px solid var(--accent-blue); }
+  .step-reason { border-left: 3px solid var(--accent-purple); }
+  .step-unique { background: rgba(216,59,1,0.10); border-left-color: var(--foundry-warn); }
+  .step-shared { opacity: 0.78; }
+  .col-divider { background: linear-gradient(180deg, transparent, var(--border), transparent); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- header -->
+<header class="fixed top-0 w-full bg-foundry-bg/85 backdrop-blur border-b border-foundry-border z-50">
+  <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/playground.html" class="flex items-center gap-2 text-foundry-ink hover:text-foundry-purple transition-colors"><span class="material-symbols-outlined text-[22px]">arrow_back</span></a>
+      <img src="assets/foundry_logo_white.svg" alt="Microsoft Foundry" class="h-7 w-7" />
+      <span class="material-symbols-outlined text-[22px] glow-purple text-foundry-purple rounded-lg">auto_awesome</span>
+      <div class="leading-tight">
+        <div class="font-segoe font-semibold text-[15px]">Azure AI Foundry</div>
+        <div class="text-[12px] text-foundry-muted">NatureLM-Idun-5-MoE · Trace Diff</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle" class="material-symbols-outlined text-[22px] text-foundry-muted hover:text-foundry-purple cursor-pointer">light_mode</button>
+    </div>
+  </div>
+</header>
+
+<main class="pt-20 max-w-[1440px] mx-auto px-6 pb-10">
+  <div class="mb-5">
+    <h1 class="font-foundry-serif text-title text-foundry-ink">Side-by-Side Trace Diff</h1>
+    <p class="text-foundry-muted text-[13px] mt-1">Zwei Prompt-Läufe nebeneinander — Tool-Timeline verglichen. Shared Steps zeilenweise gepaart, Unique Steps fallen in der jeweiligen Spalte auf.</p>
+  </div>
+
+  <!-- inputs -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div>
+      <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">looks_one</span> PROMPT A</div>
+      <textarea id="promptA" rows="3" class="font-segoe text-body w-full border border-foundry-border rounded p-3 bg-foundry-surface-2 text-foundry-ink resize-none focus:border-foundry-purple outline-none" placeholder="Prompt A eingeben…"></textarea>
+    </div>
+    <div>
+      <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">looks_two</span> PROMPT B</div>
+      <textarea id="promptB" rows="3" class="font-segoe text-body w-full border border-foundry-border rounded p-3 bg-foundry-surface-2 text-foundry-ink resize-none focus:border-foundry-purple outline-none" placeholder="Prompt B eingeben…"></textarea>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 mb-6">
+    <button id="run" class="btn-foundry px-6 py-2.5 rounded font-segoe text-[13px] font-semibold flex items-center gap-2 transition-all disabled:opacity-50">
+      <span class="material-symbols-outlined text-[18px]">compare</span><span>Vergleichen</span>
+    </button>
+    <span id="status" class="text-[13px] text-foundry-muted">Bereit.</span>
+    <div class="ml-auto flex items-center gap-2">
+      <button id="fmt-md" class="font-segoe text-[12px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors">Export MD</button>
+      <button id="fmt-json" class="font-segoe text-[12px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors">Export JSON</button>
+    </div>
+  </div>
+
+  <!-- columns -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_2px_1fr] gap-4">
+    <section class="bg-foundry-surface border border-foundry-border rounded-lg p-4">
+      <div class="chip text-foundry-muted mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">account_tree</span> TRACE A</div>
+      <div id="colA" class="space-y-2 max-h-[560px] overflow-y-auto custom-scrollbar"></div>
+    </section>
+    <div class="col-divider hidden lg:block rounded"></div>
+    <section class="bg-foundry-surface border border-foundry-border rounded-lg p-4">
+      <div class="chip text-foundry-muted mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">account_tree</span> TRACE B</div>
+      <div id="colB" class="space-y-2 max-h-[560px] overflow-y-auto custom-scrollbar"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+  const root = document.documentElement;
+  const themeToggle = document.getElementById('theme-toggle');
+  const saved = localStorage.getItem('foundry-theme');
+  if (saved === 'light') { root.classList.remove('dark'); themeToggle.textContent = 'dark_mode'; }
+  else { root.classList.add('dark'); themeToggle.textContent = 'light_mode'; }
+  themeToggle.addEventListener('click', () => {
+    root.classList.toggle('dark');
+    const nowDark = root.classList.contains('dark');
+    themeToggle.textContent = nowDark ? 'light_mode' : 'dark_mode';
+    localStorage.setItem('foundry-theme', nowDark ? 'dark' : 'light');
+  });
+
+  const EX_A = "Fasse in einem Satz zusammen, was Contoso aktuell im Bereich Nachhaltigkeit kommuniziert.";
+  const EX_B = "Erkläre anhand von Contoso, wie ein Lieferketten-Dashboard Emissionsberichte automatisiert.";
+  document.getElementById('promptA').value = EX_A;
+  document.getElementById('promptB').value = EX_B;
+
+  function stepCard(s, shared, uniqueSide) {
+    const d = document.createElement('div');
+    const isTool = s.kind === 'tool';
+    const cls = isTool ? 'step-tool' : 'step-reason';
+    const sharedCls = shared ? 'step-shared' : '';
+    const uniqCls = (!shared && uniqueSide) ? 'step-unique' : '';
+    d.className = `p-3 rounded bg-foundry-surface-2 border border-foundry-border ${cls} ${sharedCls} ${uniqCls}`;
+    const head = document.createElement('div');
+    head.className = 'flex items-center gap-2 text-[12px] font-semibold';
+    const icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined text-[16px]';
+    icon.textContent = isTool ? 'search' : 'psychology';
+    icon.style.color = isTool ? 'var(--accent-blue)' : 'var(--accent-purple)';
+    head.appendChild(icon);
+    const label = document.createElement('span');
+    label.textContent = isTool ? `TOOL · ${s.tool || 'web_search'}` : 'REASON';
+    head.appendChild(label);
+    if (s.status) {
+      const st = document.createElement('span');
+      st.className = 'ml-auto text-[11px] text-foundry-muted';
+      st.textContent = s.status;
+      head.appendChild(st);
+    }
+    d.appendChild(head);
+    const body = document.createElement('div');
+    body.className = 'mt-1 text-[13px] text-foundry-ink whitespace-pre-wrap font-mono';
+    body.textContent = s.query || s.text || '';
+    d.appendChild(body);
+    if (shared) {
+      const tag = document.createElement('div');
+      tag.className = 'mt-1 text-[10px] uppercase tracking-wider text-foundry-muted';
+      tag.textContent = 'shared';
+      d.appendChild(tag);
+    }
+    return d;
+  }
+
+  let LAST_DIFF = null;
+
+  function renderDiff(diff) {
+    LAST_DIFF = diff;
+    const a = document.getElementById('colA');
+    const b = document.getElementById('colB');
+    a.innerHTML = ''; b.innerHTML = '';
+    const sharedSet = new Set(diff.shared_queries);
+    const onlyA = new Set(diff.only_a);
+    const onlyB = new Set(diff.only_b);
+    const mk = (steps, uniqSet) => steps.map(s => {
+      const q = s.kind === 'tool' ? s.query : null;
+      const shared = q != null && sharedSet.has(q);
+      const uniqueSide = q != null && uniqSet.has(q);
+      return stepCard(s, shared, uniqueSide);
+    });
+    mk(diff.trace_a, onlyA).forEach(el => a.appendChild(el));
+    mk(diff.trace_b, onlyB).forEach(el => b.appendChild(el));
+    const same = diff.same_answer ? 'identisch' : 'unterschiedlich';
+    document.getElementById('status').textContent =
+      `Steps A=${diff.n_steps_a} B=${diff.n_steps_b} · ${diff.shared_queries.length} shared · Antwort ${same}`;
+  }
+
+  async function runDiff() {
+    const pa = document.getElementById('promptA').value.trim();
+    const pb = document.getElementById('promptB').value.trim();
+    if (!pa || !pb) { document.getElementById('status').textContent = 'Beide Prompts nötig.'; return; }
+    document.getElementById('run').disabled = true;
+    document.getElementById('status').textContent = 'Läuft…';
+    try {
+      const resp = await fetch('/api/diff', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ prompt_a: pa, prompt_b: pb })
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const diff = await resp.json();
+      renderDiff(diff);
+    } catch (e) {
+      document.getElementById('status').textContent = `Fehler: ${e.message}`;
+    } finally {
+      document.getElementById('run').disabled = false;
+    }
+  }
+  document.getElementById('run').onclick = runDiff;
+
+  function download(name, text) {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    URL.revokeObjectURL(url);
+  }
+  document.getElementById('fmt-md').onclick = () => {
+    if (!LAST_DIFF) return;
+    const md = `# Idun Trace Diff\n\n- Steps A: ${LAST_DIFF.n_steps_a} | Steps B: ${LAST_DIFF.n_steps_b}\n- Shared: ${LAST_DIFF.shared_queries.length} | Unique A: ${LAST_DIFF.only_a.length} | Unique B: ${LAST_DIFF.only_b.length}\n\n## Shared\n${LAST_DIFF.shared_queries.map(q=>'- '+q).join('\n')}\n\n## Unique A\n${LAST_DIFF.only_a.map(q=>'- '+q).join('\n')}\n\n## Unique B\n${LAST_DIFF.only_b.map(q=>'- '+q).join('\n')}\n`;
+    download('idun-diff.md', md);
+  };
+  document.getElementById('fmt-json').onclick = () => {
+    if (!LAST_DIFF) return;
+    download('idun-diff.json', JSON.stringify(LAST_DIFF, null, 2));
+  };
+</script>
+</body>
+</html>
