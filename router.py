@@ -56,21 +56,27 @@ def _run_complete(prompt, max_tokens=4096):
 
 
 class Handler(BaseHTTPRequestHandler):
+    # Security headers applied to EVERY response (static, errors, API) via the
+    # BaseHTTPRequestHandler.end_headers() hook — not just CORS paths.
+    def end_headers(self):
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        # Security headers (defense-in-depth, stdlib-only)
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("X-Frame-Options", "DENY")
-        self.send_header("Cache-Control", "no-store")
 
     # Reject requests whose Host header does not match our listener, to
     # prevent DNS-rebinding / Host-spoofing against the local agent endpoint.
+    # Exact authority match only — substrings (localhost.attacker.example) bypass
+    # the check, so we compare parsed host:port, not substrings.
     def _host_ok(self):
-        host = self.headers.get("Host", "")
-        # Accept localhost variants and the bind address; reject anything else.
-        return any(h in host for h in ("localhost", "127.0.0.1", "0.0.0.0", "[::]"))
+        host = (self.headers.get("Host") or "").split(":")[0].strip().lower()
+        allowed = {"localhost", "127.0.0.1", "::1", "0.0.0.0", "[::]"}
+        return host in allowed
 
     def _body(self, max_bytes=1 << 20):  # 1 MiB cap, anti-DoS
         length = int(self.headers.get("Content-Length", 0))
@@ -126,6 +132,9 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        if not self._host_ok():
+            self.send_error(403, "Host not allowed")
+            return
         self._static(urlparse(self.path).path)
 
     def do_POST(self):
@@ -190,7 +199,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    # Bind to loopback only — this is a local agent router, not a public server.
+    # Avoids exposing the Foundry-backed endpoint on all interfaces (Ruff S104).
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Idun router on http://localhost:{PORT}  (Ctrl+C to stop)")
     try:
         server.serve_forever()
