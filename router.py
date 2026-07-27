@@ -172,9 +172,17 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self.send_error(404)
         except RuntimeError as e:
-            self._json({"error": str(e)}, code=500)
+            try:
+                self._json({"error": str(e)}, code=500)
+            except BrokenPipeError:
+                pass  # client disconnected before we could respond
+        except BrokenPipeError:
+            pass  # client closed the connection (e.g. request timeout)
         except Exception as e:  # noqa: BLE001 - surface as JSON, not HTML traceback
-            self._json({"error": f"{type(e).__name__}: {e}"}, code=500)
+            try:
+                self._json({"error": f"{type(e).__name__}: {e}"}, code=500)
+            except BrokenPipeError:
+                pass
 
     def log_message(self, fmt, *args):
         # quieter than default
