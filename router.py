@@ -60,11 +60,24 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        # Security headers (defense-in-depth, stdlib-only)
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Cache-Control", "no-store")
 
-    def _body(self):
+    # Reject requests whose Host header does not match our listener, to
+    # prevent DNS-rebinding / Host-spoofing against the local agent endpoint.
+    def _host_ok(self):
+        host = self.headers.get("Host", "")
+        # Accept localhost variants and the bind address; reject anything else.
+        return any(h in host for h in ("localhost", "127.0.0.1", "0.0.0.0", "[::]"))
+
+    def _body(self, max_bytes=1 << 20):  # 1 MiB cap, anti-DoS
         length = int(self.headers.get("Content-Length", 0))
         if not length:
             return {}
+        if length > max_bytes:
+            raise ValueError("payload too large")
         try:
             return json.loads(self.rfile.read(length).decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
@@ -116,6 +129,9 @@ class Handler(BaseHTTPRequestHandler):
         self._static(urlparse(self.path).path)
 
     def do_POST(self):
+        if not self._host_ok():
+            self.send_error(403, "Host not allowed")
+            return
         route = urlparse(self.path).path
         try:
             if route == "/api/chat":
