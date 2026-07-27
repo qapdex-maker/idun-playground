@@ -409,6 +409,49 @@
     traceEl.scrollTop = traceEl.scrollHeight;
   }
   let busy = false;
+  // SSE-style streaming: read the router's chunked /api/chat/stream response
+  // and render steps + answer token-by-token as they arrive.
+  async function streamPrompt(prompt, model) {
+    const resp = await fetch('/api/chat/stream', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    traceEl.innerHTML = '';
+    let stepCount = 0;
+    const stepsSoFar = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      // lines are JSON events separated by \n
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        let ev;
+        try { ev = JSON.parse(line); } catch { continue; }
+        if (ev.type === 'step') {
+          stepCount++;
+          stepsSoFar.push(ev.step);
+          renderTrace(stepsSoFar);
+        } else if (ev.type === 'token') {
+          answerEl.textContent += ev.text;
+          answerEl.scrollTop = answerEl.scrollHeight;
+        } else if (ev.type === 'done') {
+          if (ev.answer != null) answerEl.textContent = ev.answer;
+          if (Array.isArray(ev.steps)) renderTrace(ev.steps);
+        } else if (ev.type === 'error') {
+          throw new Error(ev.error || 'stream error');
+        }
+      }
+    }
+  }
+
   async function sendPrompt() {
     if (busy) return;
     const model = document.getElementById('model').value;
@@ -421,35 +464,41 @@
     logEvent(`EVENT: prompt -> ${model} (${prompt.slice(0,48)}${prompt.length>48?'…':''})`, "event");
     const t0 = performance.now();
     try {
-      const resp = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model, messages:[{role:'user',content:prompt}] }) });
+      // Prefer streaming; fall back to plain /api/chat if the router has no SSE route
+      await streamPrompt(prompt, model);
       const ms = Math.round(performance.now() - t0);
-      if (!resp.ok) {
-      const err = await resp.json().catch(()=>({}));
-      // render error readably (never [object Object])
-      let msg = err.error;
-      if (typeof msg === "object" && msg !== null) msg = JSON.stringify(msg);
-      if (!msg) msg = "Unbekannt (HTTP " + resp.status + ")";
-      answerEl.textContent = "Fehler " + resp.status + ": " + msg;
-      statusEl.textContent = "Backend meldet " + resp.status + " in " + ms + " ms.";
-      logEvent(`ERR: ${model} -> HTTP ${resp.status} (${ms} ms) ${msg}`, "error");
-      // transient upstream error (Foundry 400/429) -> offer retry
-      if (resp.status === 400 || resp.status === 429) {
-        logEvent(`WARN: transient ${resp.status} from Foundry — retry recommended.`, "warn");
-        showRetry();
+      statusEl.textContent = "Antwort (Stream) von " + model + " in " + ms + " ms.";
+      latencyEl.textContent = ms + " ms";
+      logEvent(`OK: ${model} -> stream (${ms} ms)`, "ok");
+      hideRetry();
+    } catch (streamErr) {
+      // fall back to non-streaming chat endpoint
+      try {
+        const resp = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model, messages:[{role:'user',content:prompt}] }) });
+        const ms = Math.round(performance.now() - t0);
+        if (!resp.ok) {
+          const err = await resp.json().catch(()=>({}));
+          let msg = err.error;
+          if (typeof msg === "object" && msg !== null) msg = JSON.stringify(msg);
+          if (!msg) msg = "Unbekannt (HTTP " + resp.status + ")";
+          answerEl.textContent = "Fehler " + resp.status + ": " + msg;
+          statusEl.textContent = "Backend meldet " + resp.status + " in " + ms + " ms.";
+          logEvent(`ERR: ${model} -> HTTP ${resp.status} (${ms} ms) ${msg}`, "error");
+          if (resp.status === 400 || resp.status === 429) { logEvent(`WARN: transient ${resp.status} from Foundry — retry recommended.`, "warn"); showRetry(); }
+        } else {
+          const data = await resp.json();
+          answerEl.textContent = (data.choices && data.choices[0] && data.choices[0].message.content) || JSON.stringify(data);
+          if (Array.isArray(data.steps)) renderTrace(data.steps);
+          statusEl.textContent = "Antwort von " + model + " in " + ms + " ms.";
+          latencyEl.textContent = ms + " ms";
+          logEvent(`OK: ${model} -> HTTP 200 (${ms} ms)`, "ok");
+          hideRetry();
+        }
+      } catch (e) {
+        answerEl.textContent = "Verbindungsfehler: " + e.message;
+        statusEl.textContent = "Router nicht erreichbar?";
+        logEvent(`ERR: ${model} -> ${e.message}`, "error");
       }
-      } else {
-        const data = await resp.json();
-        answerEl.textContent = (data.choices && data.choices[0] && data.choices[0].message.content) || JSON.stringify(data);
-        if (Array.isArray(data.steps)) renderTrace(data.steps);
-        statusEl.textContent = "Antwort von " + model + " in " + ms + " ms.";
-        latencyEl.textContent = ms + " ms";
-        logEvent(`OK: ${model} -> HTTP 200 (${ms} ms)`, "ok");
-        hideRetry();
-      }
-    } catch (e) {
-      answerEl.textContent = "Verbindungsfehler: " + e.message;
-      statusEl.textContent = "Router nicht erreichbar?";
-      logEvent(`ERR: ${model} -> ${e.message}`, "error");
     }
     busy = false; sendBtn.disabled = false; sendIcon.textContent="send"; sendLabel.textContent="Senden";
   }
