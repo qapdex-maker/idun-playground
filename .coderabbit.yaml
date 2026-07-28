@@ -6,10 +6,9 @@ reviews:
   auto_review:
     enabled: true
     drafts: true
-  path_filters:
-    - "router.py"
-    - "playground.html"
-    - "diff.html"
+  # No path_filters: diff_scope already restricts to changed files; an explicit
+  # allow-list here would silently skip reviews on other files (e.g. README,
+  # trace-viz.js). CodeRabbit's default block-list still applies.
   ignore:
     - "Consider using 'requests' or 'httpx' instead of urllib"
     - "Replace urllib with httpx"
