@@ -1,0 +1,76 @@
+/*
+ * trace-viz.css — styling for TraceViz (Phase 4.2)
+ *
+ * Uses the host page's CSS custom properties (--surface, --accent-purple, …)
+ * so the component matches the Foundry dark/light theme without duplication.
+ * If those vars are absent it falls back to sensible dark defaults.
+ */
+.tv-cap-card {
+  background: var(--surface, #16161c);
+  border: 1px solid var(--border, #2c2c36);
+  border-radius: 6px;
+}
+.tv-row { margin-bottom: 8px; }
+.tv-row:last-child { margin-bottom: 0; }
+
+.tv-ic-bg {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tv-blue-bg { background: rgba(59, 130, 246, 0.15); }
+.tv-purple-bg { background: rgba(139, 92, 246, 0.15); }
+
+.tv-icon { font-size: 18px; line-height: 1; }
+.tv-blue-bg .tv-icon { color: var(--accent-blue, #3b82f6); }
+.tv-purple-bg .tv-icon { color: var(--accent-purple, #8b5cf6); }
+
+.tv-label {
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--ink, #f3f3f5);
+}
+.tv-text, .tv-query {
+  font-size: 12px; line-height: 1.4;
+  color: var(--muted, #9a9aa8);
+  margin-top: 4px;
+}
+.tv-query {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tv-chip {
+  font-size: 11px; font-weight: 600;
+  padding: 1px 8px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.tv-blue { color: var(--accent-blue, #3b82f6); background: rgba(59, 130, 246, 0.12); }
+.tv-green { color: #4ade80; background: rgba(16, 124, 16, 0.18); }
+.tv-red { color: #f87171; background: rgba(248, 113, 113, 0.15); }
+.tv-muted { color: var(--muted, #9a9aa8); background: rgba(154, 154, 168, 0.12); }
+
+.tv-empty {
+  font-size: 12px; font-style: italic;
+  color: var(--muted, #9a9aa8);
+  padding: 8px 2px;
+}
+
+/* Diff markers (Phase 4.2) */
+.tv-shared { border-left: 3px solid var(--accent-blue, #3b82f6); }
+.tv-unique { border-left: 3px solid var(--accent-purple, #8b5cf6); }
+
+.tv-spinner {
+  width: 10px; height: 10px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: tv-spin 0.7s linear infinite;
+}
+@keyframes tv-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .tv-spinner { animation: none; }
+}

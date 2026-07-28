@@ -120,6 +120,10 @@
   </div>
 </main>
 
+<!-- Phase 4.2: shared TraceViz component (same renderer as playground.html) -->
+<link rel="stylesheet" href="trace-viz.css"/>
+<script src="trace-viz.js"></script>
+
 <script>
   const root = document.documentElement;
   const themeToggle = document.getElementById('theme-toggle');
@@ -138,61 +142,19 @@
   document.getElementById('promptA').value = EX_A;
   document.getElementById('promptB').value = EX_B;
 
-  function stepCard(s, shared, uniqueSide) {
-    const d = document.createElement('div');
-    const isTool = s.kind === 'tool';
-    const cls = isTool ? 'step-tool' : 'step-reason';
-    const sharedCls = shared ? 'step-shared' : '';
-    const uniqCls = (!shared && uniqueSide) ? 'step-unique' : '';
-    d.className = `p-3 rounded bg-foundry-surface-2 border border-foundry-border ${cls} ${sharedCls} ${uniqCls}`;
-    const head = document.createElement('div');
-    head.className = 'flex items-center gap-2 text-[12px] font-semibold';
-    const icon = document.createElement('span');
-    icon.className = 'material-symbols-outlined text-[16px]';
-    icon.textContent = isTool ? 'search' : 'psychology';
-    icon.style.color = isTool ? 'var(--accent-blue)' : 'var(--accent-purple)';
-    head.appendChild(icon);
-    const label = document.createElement('span');
-    label.textContent = isTool ? `TOOL · ${s.tool || 'web_search'}` : 'REASON';
-    head.appendChild(label);
-    if (s.status) {
-      const st = document.createElement('span');
-      st.className = 'ml-auto text-[11px] text-foundry-muted';
-      st.textContent = s.status;
-      head.appendChild(st);
-    }
-    d.appendChild(head);
-    const body = document.createElement('div');
-    body.className = 'mt-1 text-[13px] text-foundry-ink whitespace-pre-wrap font-mono';
-    body.textContent = s.query || s.text || '';
-    d.appendChild(body);
-    if (shared) {
-      const tag = document.createElement('div');
-      tag.className = 'mt-1 text-[10px] uppercase tracking-wider text-foundry-muted';
-      tag.textContent = 'shared';
-      d.appendChild(tag);
-    }
-    return d;
-  }
-
   let LAST_DIFF = null;
 
+  // Both columns render through the shared TraceViz component (Phase 4.2),
+  // passing the shared/unique query Sets so cards get the left-border markers.
   function renderDiff(diff) {
     LAST_DIFF = diff;
     const a = document.getElementById('colA');
     const b = document.getElementById('colB');
-    a.innerHTML = ''; b.innerHTML = '';
     const sharedSet = new Set(diff.shared_queries);
     const onlyA = new Set(diff.only_a);
     const onlyB = new Set(diff.only_b);
-    const mk = (steps, uniqSet) => steps.map(s => {
-      const q = s.kind === 'tool' ? s.query : null;
-      const shared = q != null && sharedSet.has(q);
-      const uniqueSide = q != null && uniqSet.has(q);
-      return stepCard(s, shared, uniqueSide);
-    });
-    mk(diff.trace_a, onlyA).forEach(el => a.appendChild(el));
-    mk(diff.trace_b, onlyB).forEach(el => b.appendChild(el));
+    TraceViz.renderDiff(a, diff.trace_a, { sharedQueries: sharedSet, uniqueQueries: onlyA });
+    TraceViz.renderDiff(b, diff.trace_b, { sharedQueries: sharedSet, uniqueQueries: onlyB });
     const same = diff.same_answer ? 'identisch' : 'unterschiedlich';
     document.getElementById('status').textContent =
       `Steps A=${diff.n_steps_a} B=${diff.n_steps_b} · ${diff.shared_queries.length} shared · Antwort ${same}`;

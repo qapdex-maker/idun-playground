@@ -255,6 +255,10 @@
   </div>
 </main>
 
+<!-- Phase 4.2: reusable TraceViz component (shared with diff.html + other agents) -->
+<link rel="stylesheet" href="trace-viz.css"/>
+<script src="trace-viz.js"></script>
+
 <script>
   // Theme: default dark, persist choice
   const root = document.documentElement;
@@ -362,51 +366,11 @@
   function hideRetry(){ retryBtn.classList.add('hidden'); }
   retryBtn.addEventListener('click', () => { hideRetry(); sendPrompt(); });
 
-  // Render Idun's agent trajectory (reasoning steps + tool calls) as a vertical trace
+  // Render Idun's agent trajectory via the reusable TraceViz component (Phase 4.2).
+  // The inline implementation was extracted to trace-viz.js so playground.html,
+  // diff.html and other Foundry agents share ONE renderer.
   function renderTrace(steps) {
-    traceEl.innerHTML = "";
-    if (!Array.isArray(steps) || steps.length === 0) {
-      traceEl.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Keine Schritte — Agent hat direkt geantwortet.</div>';
-      return;
-    }
-    let n = 0;
-    steps.forEach((s) => {
-      n++;
-      const row = document.createElement('div');
-      row.className = "cap-card rounded p-3 flex gap-3 items-start";
-      if (s.kind === "tool") {
-        const searching = s.status === "searching";
-        const done = s.status === "completed";
-        const badge = searching
-          ? '<span class="chip text-foundry-blue flex items-center gap-1"><span class="spinner inline-block" style="width:10px;height:10px;border-width:1.5px"></span>SUCHT…</span>'
-          : done
-            ? '<span class="chip text-emerald-400">✓ DONE</span>'
-            : `<span class="chip text-foundry-muted">${s.status.toUpperCase()}</span>`;
-        row.innerHTML = `
-          <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(59,130,246,0.15)">
-            <span class="material-symbols-outlined text-[18px] text-foundry-blue">public</span>
-          </div>
-          <div class="flex-grow min-w-0">
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-segoe text-[12px] font-semibold text-foundry-ink">${n}. Tool · web_search</span>
-              ${badge}
-            </div>
-            <div class="font-mono text-[11px] text-foundry-muted mt-1 truncate">${s.query ? s.query : "(query)"}</div>
-          </div>`;
-      } else {
-        const preview = (s.text || "").replace(/\n/g, " ").slice(0, 140);
-        row.innerHTML = `
-          <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(139,92,246,0.15)">
-            <span class="material-symbols-outlined text-[18px] text-foundry-purple">psychology</span>
-          </div>
-          <div class="flex-grow min-w-0">
-            <div class="font-segoe text-[12px] font-semibold text-foundry-ink">${n}. ${s.kind === "reasoning" ? "Reasoning / Plan" : "Message"}</div>
-            <div class="text-[12px] text-foundry-muted mt-1 leading-snug">${preview}${preview.length >= 140 ? "…" : ""}</div>
-          </div>`;
-      }
-      traceEl.appendChild(row);
-    });
-    traceEl.scrollTop = traceEl.scrollHeight;
+    TraceViz.render(traceEl, steps);
   }
   let busy = false;
   // SSE-style streaming: read the router's chunked /api/chat/stream response

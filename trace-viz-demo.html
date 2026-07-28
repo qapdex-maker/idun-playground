@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TraceViz — Reusable Agent Trace Component (Phase 4.2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="trace-viz.css"/>
+<!-- Foundry dark theme vars (copy from playground.html so the demo is standalone) -->
+<style>
+  :root { --bg:#ffffff; --surface:#f5f5f5; --border:#e0e0e0; --ink:#1b1a19; --muted:#616161; --accent-blue:#0067B8; --accent-purple:#5c2d91; }
+  .dark { --bg:#0e0e12; --surface:#16161c; --surface-2:#1c1c24; --border:#2c2c36; --ink:#f3f3f5; --muted:#9a9aa8; --accent-blue:#3b82f6; --accent-purple:#8b5cf6; }
+  body { background:var(--bg); color:var(--ink); font-family:"Segoe UI",Inter,system-ui,sans-serif; margin:0; padding:32px; }
+  h1 { font-family:"Playfair Display",Georgia,serif; font-weight:700; }
+  .wrap { max-width:760px; margin:0 auto; }
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px; margin-top:16px; }
+  .hint { color:var(--muted); font-size:13px; line-height:1.6; }
+  button { font:inherit; background:var(--accent-purple); color:#fff; border:0; padding:8px 14px; border-radius:6px; cursor:pointer; }
+  #trace { max-height:420px; overflow:auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TraceViz — wiederverwendbare Tool-Agent-Visualisierung</h1>
+  <p class="hint">
+    Dieselbe Komponente (<code>trace-viz.js</code> + <code>trace-viz.css</code>) rendert die
+    Agent-Trajectory. Sie nutzt die CSS-Variablen der Host-Seite, passt sich also jedem
+    Foundry-Theme an. <code>playground.html</code> und <code>diff.html</code> können sie statt
+    dupliziertem Code nutzen. Hier ein Beispiel mit Schritten eines beliebigen Foundry-Agents.
+  </p>
+
+  <div class="panel">
+    <div id="trace"></div>
+  </div>
+
+  <p style="margin-top:16px">
+    <button onclick="renderSample()">Beispiel-Trace laden</button>
+  </p>
+</div>
+
+<script src="trace-viz.js"></script>
+<script>
+  function renderSample() {
+    var steps = [
+      { kind: "reasoning", text: "User fragt nach QRS-Dosis bei Niereninsuffizienz. Ich prüfe zuerst Leitlinien, dann FachDB." },
+      { kind: "tool", tool: "web_search", query: "QRS dose renal impairment guideline", status: "completed" },
+      { kind: "reasoning", text: "Fund: eGFR &lt;30 → 50% Reduktion. Jetzt Fach-DB für Interaktionen." },
+      { kind: "tool", tool: "vector_query", query: "QRS interaction warfarin", status: "completed" },
+      { kind: "message", text: "Bei eGFR <30 ml/min QRS auf 50% reduzieren; INR engmaschiger kontrollieren." }
+    ];
+    TraceViz.render(document.getElementById("trace"), steps);
+  }
+  // initial empty state
+  TraceViz.render(document.getElementById("trace"), []);
+</script>
+</body>
+</html>
