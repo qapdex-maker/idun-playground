@@ -159,14 +159,17 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
                 self._cors()
                 self.end_headers()
-                for s in res.steps:
-                    ev = json.dumps({"type": "step", "step": _step_to_dict(s)},
-                                    ensure_ascii=False) + "\n"
-                    self.wfile.write(ev.encode("utf-8"))
-                done = json.dumps({"type": "done", "answer": res.text,
-                                   "steps": [_step_to_dict(s) for s in res.steps]},
-                                  ensure_ascii=False) + "\n"
-                self.wfile.write(done.encode("utf-8"))
+                try:
+                    for s in res.steps:
+                        ev = json.dumps({"type": "step", "step": _step_to_dict(s)},
+                                        ensure_ascii=False) + "\n"
+                        self.wfile.write(ev.encode("utf-8"))
+                    done = json.dumps({"type": "done", "answer": res.text,
+                                       "steps": [_step_to_dict(s) for s in res.steps]},
+                                      ensure_ascii=False) + "\n"
+                    self.wfile.write(done.encode("utf-8"))
+                except BrokenPipeError:
+                    pass  # client closed the connection mid-stream
             elif route == "/api/diff":
                 body = self._body()
                 pa = body.get("prompt_a", "")
