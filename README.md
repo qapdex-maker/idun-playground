@@ -57,3 +57,5 @@ agent is both: `idun` (invoke) + `idun-playground-docs` (look up the playground
 architecture on its own).
 
 [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/qapdex-maker/idun-playground)](https://gitmcp.io/qapdex-maker/idun-playground)
+
+<!-- CodeRabbit verify probe 1785249296 -->
