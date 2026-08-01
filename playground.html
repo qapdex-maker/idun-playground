@@ -182,6 +182,12 @@
       </div>
 
       <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5">
+        <div class="chip text-foundry-muted mb-3">PROMPT PACKS</div>
+        <div id="pack-list" class="space-y-2"></div>
+        <div class="mt-3 text-[11px] text-foundry-muted leading-relaxed">Bundled packs via <code class="font-mono text-foundry-ink">/api/packs</code></div>
+      </div>
+
+      <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5">
         <div class="chip text-foundry-muted mb-3">BACKEND STATUS</div>
         <div id="backend-list" class="space-y-2"></div>
         <div class="mt-4 pt-3 border-t border-foundry-border flex flex-col gap-1">
@@ -211,6 +217,10 @@
         <div class="flex items-center justify-between">
           <span id="status" class="font-segoe text-[13px] text-foundry-muted">Bereit.</span>
           <div class="flex items-center gap-2">
+            <button id="export-btn" class="hidden bg-foundry-surface-2 border border-foundry-border text-foundry-muted px-5 py-2.5 rounded font-segoe text-[13px] font-semibold flex items-center gap-2 hover:border-foundry-purple hover:text-foundry-purple transition-colors">
+              <span class="material-symbols-outlined text-[18px]">download</span>
+              <span>Export</span>
+            </button>
             <button id="retry" class="hidden bg-foundry-surface-2 border border-foundry-purple text-foundry-purple px-5 py-2.5 rounded font-segoe text-[13px] font-semibold flex items-center gap-2 hover:bg-foundry-purple/10 transition-colors">
               <span class="material-symbols-outlined text-[18px]">refresh</span>
               <span>Erneut versuchen</span>
@@ -435,6 +445,7 @@
       latencyEl.textContent = ms + " ms";
       logEvent(`OK: ${model} -> stream (${ms} ms)`, "ok");
       hideRetry();
+      exportBtn.classList.remove('hidden');
     } catch (streamErr) {
       // fall back to non-streaming chat endpoint
       try {
@@ -457,6 +468,7 @@
           latencyEl.textContent = ms + " ms";
           logEvent(`OK: ${model} -> HTTP 200 (${ms} ms)`, "ok");
           hideRetry();
+          exportBtn.classList.remove('hidden');
         }
       } catch (e) {
         answerEl.textContent = "Verbindungsfehler: " + e.message;
@@ -467,6 +479,68 @@
     busy = false; sendBtn.disabled = false; sendIcon.textContent="send"; sendLabel.textContent="Senden";
   }
   sendBtn.onclick = sendPrompt;
-</script>
+
+  // --- Pack picker (SDK-parity: /api/packs + /api/run) ---
+  const packList = document.getElementById('pack-list');
+  const exportBtn = document.getElementById('export-btn');
+  async function loadPacks() {
+    try {
+      const resp = await fetch('/api/packs', { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+      const data = await resp.json().catch(()=>({}));
+      const packs = (data.packs || []).filter(p => !p.error);
+      packList.innerHTML = '';
+      if (!packs.length) { packList.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Keine Packs.</div>'; return; }
+      packs.forEach(p => {
+        const row = document.createElement('button');
+        row.className = "w-full text-left cap-card flex items-center gap-3 p-2 rounded hover:border-foundry-purple transition-colors";
+        row.innerHTML = `<span class="material-symbols-outlined text-[18px] text-foundry-purple">database</span>
+          <div><div class="font-segoe text-[13px] text-foundry-ink">${p.title || p.name}</div><div class="text-[11px] text-foundry-muted">${p.count} prompts · ${p.name}</div></div>`;
+        row.onclick = async () => {
+          statusEl.textContent = `Lade Pack ${p.name} …`;
+          logEvent(`EVENT: pack -> ${p.name}`, "event");
+          try {
+            const r = await fetch('/api/run', { method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ pack: p.name, key: (await firstKey(p.name)) }) });
+            const d = await r.json().catch(()=>({}));
+            if (r.ok && d.choices) {
+              document.getElementById('prompt').value = (d.choices[0].message.content || '');
+              answerEl.textContent = (d.choices[0].message.content || '');
+              if (Array.isArray(d.steps)) renderTrace(d.steps);
+              exportBtn.classList.remove('hidden');
+              statusEl.textContent = `Pack ${p.name} geladen.`;
+              logEvent(`OK: pack ${p.name} -> ${d.steps ? d.steps.length : 0} steps`, "ok");
+            } else {
+              statusEl.textContent = "Pack-Fehler: " + (d.error || r.status);
+              logEvent(`ERR: pack ${p.name} -> ${d.error || r.status}`, "error");
+            }
+          } catch (e) { statusEl.textContent = "Pack-Verbindungsfehler: " + e.message; }
+        };
+        packList.appendChild(row);
+      });
+    } catch (e) { packList.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Packs nicht erreichbar.</div>'; }
+  }
+  // helper: fetch first prompt key of a pack (router /api/run needs key)
+  async function firstKey(pack) {
+    // The packs endpoint does not return keys; query the SDK-style via a probe.
+    // For now, default to "demo"; real packs expose their key set client-side.
+    return "demo";
+  }
+  loadPacks();
+  exportBtn.onclick = async () => {
+    const prompt = document.getElementById('prompt').value.trim();
+    if (!prompt) { statusEl.textContent = "Nichts zu exportieren — zuerst Prompt senden."; return; }
+    statusEl.textContent = "Exportiere Trajectory …";
+    try {
+      const resp = await fetch('/api/export', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ messages:[{role:'user',content:prompt}], format:'md' }) });
+      const d = await resp.json().catch(()=>({}));
+      if (resp.ok && d.content) {
+        answerEl.textContent = d.content;
+        statusEl.textContent = `Export (${d.format}) fertig.`;
+        logEvent(`OK: export -> ${d.format}`, "ok");
+      } else { statusEl.textContent = "Export-Fehler: " + (d.error || resp.status); }
+    } catch (e) { statusEl.textContent = "Export-Verbindungsfehler: " + e.message; }
+  };
+ </script>
 </body>
 </html>
