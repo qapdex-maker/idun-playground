@@ -185,6 +185,9 @@ class Handler(BaseHTTPRequestHandler):
                 body = self._body()
                 prompt = (body.get("messages") or [{}])[-1].get("content", "") or body.get("prompt", "")
                 fmt = body.get("format", "json")
+                if fmt not in ("json", "md"):
+                    self._json({"error": f"unsupported format: {fmt!r} (use 'json' or 'md')"}, code=400)
+                    return
                 max_tokens = body.get("max_tokens", 4096)
                 res = _run_complete(prompt, max_tokens)
                 if fmt == "md":

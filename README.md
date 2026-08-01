@@ -25,7 +25,7 @@ Idun is a **tool agent** (it calls `web_search` / `memory_search`). The playgrou
 | `/api/chat` | POST | `{messages:[{role,content}], max_tokens?}` | `{choices, steps, model}` |
 | `/api/chat/stream` | POST | same as `/api/chat` | NDJSON events: `step` / `done` (honest step-wise, not fake token streaming) |
 | `/api/diff` | POST | `{prompt_a, prompt_b, max_tokens?}` | `{trace_a, trace_b, shared_queries, only_a, only_b, same_answer}` |
-| `/api/export` | POST | `{messages:[{role,content}]` or `{prompt}`, `format: json|md` | `{format, content}` — full trajectory as JSON or Markdown |
+| `/api/export` | POST | `{messages:[{role,content}]` or `{prompt}`, `format: json\|md` | `{format, content}` — full trajectory as JSON or Markdown |
 | `/api/packs` | POST | `{}` | `{packs:[{name, title, description, count}]}` |
 | `/api/run` | POST | `{pack, key, max_tokens?}` | `{choices, steps, model}` for a bundled prompt |
 
