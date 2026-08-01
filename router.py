@@ -32,9 +32,28 @@ PORT = 9001
 
 
 def _client():
-    tok = load_token() or os.environ.get("FOUNDRY_TOKEN")
+    # NOTE: we read the stored token WITHOUT calling maybe_refresh(). A refresh
+    # on an expired token with no refresh_token triggers an interactive
+    # device-code login, which hangs a headless router (it waits forever for a
+    # browser). Instead we require a still-valid token and fail fast with a
+    # clear error so the UI can tell the user to run `idun login`.
+    tok = os.environ.get("FOUNDRY_TOKEN")
     if not tok:
-        raise RuntimeError("No FOUNDRY_TOKEN. Run `idun login` or export FOUNDRY_TOKEN.")
+        try:
+            from idun.auth import _load_meta
+            meta = _load_meta()
+            if meta:
+                exp = float(meta.get("expires_at", 0))
+                candidate = meta.get("access_token", "")
+                # only use it if not already within the refresh slack
+                if candidate and (exp - __import__("time").time()) > 300:
+                    tok = candidate
+        except Exception:
+            pass
+    if not tok:
+        raise RuntimeError(
+            "No valid FOUNDRY_TOKEN. Run `idun login` (or export FOUNDRY_TOKEN) to refresh."
+        )
     return IdunClient(token=tok)
 
 
