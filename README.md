@@ -12,12 +12,24 @@ Idun is a **tool agent** (it calls `web_search` / `memory_search`). The playgrou
 
 | File | Purpose |
 | --- | --- |
-| `playground.html` | Contoso prompt lab + agent trace + telemetry (dark Foundry theme) |
-| `api-reference.html` | Endpoint docs + live **Try it** panel |
-| `auth-guide.html` | Device-code flow + live token-status probe |
-| `faq.html` | Searchable Q&A |
-| `server.py` | Multi-backend router (ThreadingHTTPServer, port 9001) — holds credentials server-side |
-| `backends.json` | Backend configuration |
+| `playground.html` | Prompt lab + agent trace + telemetry (dark Foundry theme) |
+| `diff.html` | Side-by-side trace diff of two prompts |
+| `trace-viz.js` / `trace-viz.css` | Reusable trajectory renderer (shared by playground + diff) |
+| `router.py` | Stdlib HTTP router (ThreadingHTTPServer, port 9001) — holds credentials server-side |
+| `assets/` | Logo SVGs (Foundry + Idun) |
+
+## API (router.py)
+
+| Endpoint | Method | Payload | Returns |
+| --- | --- | --- | --- |
+| `/api/chat` | POST | `{messages:[{role,content}], max_tokens?}` | `{choices, steps, model}` |
+| `/api/chat/stream` | POST | same as `/api/chat` | NDJSON events: `step` / `done` (honest step-wise, not fake token streaming) |
+| `/api/diff` | POST | `{prompt_a, prompt_b, max_tokens?}` | `{trace_a, trace_b, shared_queries, only_a, only_b, same_answer}` |
+| `/api/export` | POST | `{messages:[{role,content}]` or `{prompt}`, `format: json|md` | `{format, content}` — full trajectory as JSON or Markdown |
+| `/api/packs` | POST | `{}` | `{packs:[{name, title, description, count}]}` |
+| `/api/run` | POST | `{pack, key, max_tokens?}` | `{choices, steps, model}` for a bundled prompt |
+
+The router mirrors the companion [idun-sdk](https://github.com/qapdex-maker/idun-sdk) (v0.1.21+) client surface (`export`/`diff`/`packs`/`run`).
 
 ## Run
 
@@ -25,29 +37,18 @@ Idun is a **tool agent** (it calls `web_search` / `memory_search`). The playgrou
 export FOUNDRY_TOKEN="$(cat ~/foundry_token.txt)"
 export FOUNDRY_TIMEOUT=600
 cd idun-playground
-python3 server.py
+python3 router.py
 # open http://127.0.0.1:9001/playground.html
 ```
 
-No secrets in the HTML — the router reads `FOUNDRY_TOKEN` (and `AZURE_OPENAI_API_KEY`,
-`cf-aig-authorization`) server-side, so the browser never sees a token.
-
-For a Python client + CLI against the same agent, see the companion repo
-[idun-sdk](https://github.com/qapdex-maker/idun-sdk).
+No secrets in the HTML — the router reads `FOUNDRY_TOKEN` server-side, so the browser never sees a token.
 
 ## MCP — docs mirror
 
-The playground docs are exposed as a GitMCP server so AI tools can read them
-live (prefers `llms.txt`):
+The playground docs are exposed as a GitMCP server so AI tools can read them live:
 
 ```
 https://gitmcp.io/qapdex-maker/idun-playground/sse
-```
-
-For stdio-only clients (Claude Desktop, Cline, Msty):
-
-```json
-{ "mcpServers": { "idun-playground-docs": { "command": "npx", "args": ["mcp-remote", "https://gitmcp.io/qapdex-maker/idun-playground/sse"] } } }
 ```
 
 To actually **call** the agent (not just read docs), use the
@@ -55,7 +56,3 @@ To actually **call** the agent (not just read docs), use the
 (`idun_chat` / `idun_trace` over stdio). The recommended stack for a foreign
 agent is both: `idun` (invoke) + `idun-playground-docs` (look up the playground
 architecture on its own).
-
-[![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/qapdex-maker/idun-playground)](https://gitmcp.io/qapdex-maker/idun-playground)
-
-<!-- CodeRabbit verify probe 1785249296 -->
