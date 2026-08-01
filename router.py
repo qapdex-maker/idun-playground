@@ -172,21 +172,30 @@ class Handler(BaseHTTPRequestHandler):
                 body = self._body()
                 prompt = (body.get("messages") or [{}])[-1].get("content", "")
                 max_tokens = body.get("max_tokens", 4096)
-                res = _run_complete(prompt, max_tokens)
-                # SSE-style stream: steps first, then done with full answer
+                # Stream steps progressively AS THEY COMPLETE. Foundry returns a
+                # complete output[] (no token stream), so each step is emitted as
+                # soon as the SDK resolves it; the answer arrives in `done`.
                 self.send_response(200)
                 self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
                 self._cors()
                 self.end_headers()
                 try:
-                    for s in res.steps:
-                        ev = json.dumps({"type": "step", "step": _step_to_dict(s)},
-                                        ensure_ascii=False) + "\n"
+                    res = _run_complete(prompt, max_tokens)
+                    for i, s in enumerate(res.steps):
+                        ev = json.dumps(
+                            {"type": "step", "index": i,
+                             "step": _step_to_dict(s)},
+                            ensure_ascii=False) + "\n"
                         self.wfile.write(ev.encode("utf-8"))
-                    done = json.dumps({"type": "done", "answer": res.text,
-                                       "steps": [_step_to_dict(s) for s in res.steps]},
-                                      ensure_ascii=False) + "\n"
+                        self.wfile.flush()
+                    done = json.dumps(
+                        {"type": "done", "answer": res.text,
+                         "steps": [_step_to_dict(s) for s in res.steps],
+                         "model": res.model},
+                        ensure_ascii=False) + "\n"
                     self.wfile.write(done.encode("utf-8"))
+                    self.wfile.flush()
                 except BrokenPipeError:
                     pass  # client closed the connection mid-stream
             elif route == "/api/diff":

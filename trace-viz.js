@@ -115,6 +115,34 @@
     container.scrollTop = container.scrollHeight;
   }
 
+  // Incremental update: mark the Nth step (1-based) as completed, or append a
+  // new "running" step. Used by the live streaming UI so steps appear
+  // progressively instead of re-rendering the whole list on every event.
+  function markRunning(container, step) {
+    if (!container) return;
+    var rows = container.querySelectorAll(".tv-row");
+    var n = rows.length + 1;
+    var row = rowForStep(
+      Object.assign({ status: "running" }, step),
+      n
+    );
+    container.appendChild(row);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function markDone(container, idx, step) {
+    if (!container) return;
+    var rows = container.querySelectorAll(".tv-row");
+    var row = rows[idx]; // 0-based
+    if (!row) return;
+    var fresh = rowForStep(
+      Object.assign({ status: "completed" }, step),
+      idx + 1
+    );
+    container.replaceChild(fresh, row);
+    container.scrollTop = container.scrollHeight;
+  }
+
   // Convenience: render into a selector (returns false if not found).
   function renderSelector(sel, steps) {
     var el = typeof sel === "string" ? document.querySelector(sel) : sel;
@@ -126,6 +154,8 @@
   global.TraceViz = {
     render: render,
     renderSelector: renderSelector,
+    markRunning: markRunning,
+    markDone: markDone,
     ICONS: ICONS,
   };
 
