@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 from functools import partial
 
 import idun
-from idun import IdunClient, load_token, diff_traces, list_packs, get_prompt, format_diff
+from idun import IdunClient, load_token, diff_traces, list_packs, get_prompt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = 9001
