@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 from functools import partial
 
 import idun
-from idun import IdunClient, load_token, diff_traces
+from idun import IdunClient, load_token, diff_traces, list_packs, get_prompt, format_diff
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = 9001
@@ -181,6 +181,35 @@ class Handler(BaseHTTPRequestHandler):
                 d["trace_a"] = [_step_to_dict(s) for s in ra.steps]
                 d["trace_b"] = [_step_to_dict(s) for s in rb.steps]
                 self._json(d)
+            elif route == "/api/export":
+                body = self._body()
+                prompt = (body.get("messages") or [{}])[-1].get("content", "") or body.get("prompt", "")
+                fmt = body.get("format", "json")
+                max_tokens = body.get("max_tokens", 4096)
+                res = _run_complete(prompt, max_tokens)
+                if fmt == "md":
+                    out = res.to_markdown()
+                else:
+                    out = res.to_json()
+                self._json({"format": fmt, "content": out})
+            elif route == "/api/packs":
+                try:
+                    packs = list_packs()
+                except Exception as e:
+                    packs = [{"error": str(e)}]
+                self._json({"packs": packs})
+            elif route == "/api/run":
+                body = self._body()
+                pack = body.get("pack", "")
+                key = body.get("key", "")
+                max_tokens = body.get("max_tokens", 4096)
+                try:
+                    prompt = get_prompt(pack, key)
+                except Exception as e:
+                    self._json({"error": f"pack/key not found: {e}"}, code=404)
+                    return
+                res = _run_complete(prompt, max_tokens)
+                self._json(_result_to_payload(res))
             else:
                 self.send_error(404)
         except RuntimeError as e:
