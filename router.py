@@ -203,8 +203,13 @@ class Handler(BaseHTTPRequestHandler):
                 pa = body.get("prompt_a", "")
                 pb = body.get("prompt_b", "")
                 max_tokens = body.get("max_tokens", 4096)
-                ra = _run_complete(pa, max_tokens)
-                rb = _run_complete(pb, max_tokens)
+                # Run both completions concurrently (Foundry latency is the bottleneck).
+                from concurrent.futures import ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=2) as ex:
+                    fa = ex.submit(_run_complete, pa, max_tokens)
+                    fb = ex.submit(_run_complete, pb, max_tokens)
+                    ra = fa.result()
+                    rb = fb.result()
                 d = diff_traces(ra, rb)
                 d["trace_a"] = [_step_to_dict(s) for s in ra.steps]
                 d["trace_b"] = [_step_to_dict(s) for s in rb.steps]
