@@ -1,0 +1,25 @@
+# VCS / CI
+.git
+.gitignore
+.github
+
+# Python junk
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+
+# Secrets — must never enter the image
+foundry_token.txt
+foundry_code.txt
+*.local
+
+# Local router state
+router.pid
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store

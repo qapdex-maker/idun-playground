@@ -262,10 +262,14 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    # Bind to loopback only — this is a local agent router, not a public server.
-    # Avoids exposing the Foundry-backed endpoint on all interfaces (Ruff S104).
-    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
-    print(f"Idun router on http://localhost:{PORT}  (Ctrl+C to stop)")
+    # Bind host is configurable. Default is loopback (127.0.0.1) so a bare
+    # `python3 router.py` never exposes the Foundry-backed endpoint on the LAN.
+    # In a container, set BIND_HOST=0.0.0.0 (and ALWAYS put a TLS-terminating
+    # reverse proxy in front — the router itself has no auth layer beyond the
+    # Foundry token, which must be injected as a secret, never baked into image).
+    bind_host = os.environ.get("BIND_HOST", "127.0.0.1")
+    server = ThreadingHTTPServer((bind_host, PORT), Handler)
+    print(f"Idun router on http://{bind_host}:{PORT}  (Ctrl+C to stop)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
