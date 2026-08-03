@@ -2,7 +2,8 @@
 # Policy: zero-critical-before-merge (NVIDIA-aligned), diff-scoped reviews.
 reviews:
   diff_scope: true
-  severity_threshold: critical
+  severity_threshold: all
+  # (was: critical — lowered to 'all' for a full professional review pass)
   auto_review:
     enabled: true
     drafts: true
