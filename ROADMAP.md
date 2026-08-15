@@ -45,3 +45,27 @@ Status quo, nahe, mittelfristige und Vision-Ziele für das Idun-Projekt
    Foundry-Agents.
 3. **Streaming (SSE)** im Playground statt Poll — Schritte erscheinen
    zeichengenau live.
+
+## Phase 7 — Contoso Expo 2027 (Showcase)
+
+1. **Expo-Showcase `expo.html`** — eigene Booth-Seite im Foundry-Look
+   (Hero + Live-Stage + Demo-Galerie). Lädt Demo-Prompts live aus
+   `/api/expo` und startet sie gegen den Agent (progressive Trace-Viz).
+2. **Router `/api/expo`** — flatten alle Prompt-Packs zu Demo-Einträgen
+   (pack, key, title, prompt, preview). Offline (kein Token nötig), also
+   lädt die Galerie selbst ohne Live-Creds.
+3. **`/api/packs` um `keys` erweitert** — Playground-Pack-Picker startet
+   jetzt den echten ersten Prompt (kein 404 mehr über `firstKey`).
+4. **Nav-Link** Playground → Expo; Expo ↔ Playground / Trace Diff.
+5. **Expo-Interaktion (korrigiert):** Demo-Auswahl über Dropdown + expliziter
+   „Live starten"-Button (kein Auto-Start beim Klick → keine Überlastung).
+6. **Offline-Demo-Modus (Booth-fest):** Bei abgelaufenem/exakt keinem
+   FOUNDRY_TOKEN liefert der Router aufgezeichnete Contoso-Traces im
+   identischen step/done-NDJSON-Format zurück (router.py +
+   demo_traces.py). UI zeigt volle Antwort + Schritte + „DEMO-REPLAY"-Badge.
+   Live-Lauf greift automatisch, sobald ein gültiges Token vorhanden ist.
+7. **Fehler-/Retry-Robustheit:** /api/diff + /api/chat/stream geben bei
+   abgelaufenem Token die saubere `No valid FOUNDRY_TOKEN`-Meldung zurück
+   (kein nackter HTTP-500 mehr); Frontend zeigt „idun login" an. Transiente
+   5xx/429 werden im Frontend 2–3× wiederholt. Antwort wird bei `done` voll
+   gerendert + ins Bild gescrollt (kein „zeigt nur die Zeit, dann nix").

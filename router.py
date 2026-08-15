@@ -25,10 +25,65 @@ from urllib.parse import urlparse
 from functools import partial
 
 import idun
-from idun import IdunClient, load_token, diff_traces, list_packs, get_prompt
+from idun import IdunClient, load_token, diff_traces, list_packs, load_pack, get_prompt
+from demo_traces import get_demo, first_demo_key, GENERIC_DEMO, DEMO_TRACES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = 9001
+
+
+def _demo_trace(pack, key):
+    """Return a recorded demo trace dict for (pack, key), or None."""
+    return get_demo(pack, key)
+
+
+def _demo_trace_for_prompt(prompt):
+    """Fallback demo when no token is available and no explicit key was given.
+
+    Uses the first recorded Contoso trace (deterministic) so the stage always
+    shows a full trace + answer instead of an error.
+    """
+    pk = first_demo_key()
+    if pk[0] is not None:
+        t = get_demo(pk[0], pk[1])
+        if t:
+            return t
+    return GENERIC_DEMO
+
+
+def _demo_diff(pa, pb):
+    """Build a recorded side-by-side diff from the first two demo traces.
+
+    Offline-safe: lets the Trace Diff view render at a booth even when no
+    Foundry token is configured. Clearly marked demo in the status text.
+    """
+    keys = list(DEMO_TRACES.keys())
+    if not keys:
+        return None
+    a_key = keys[0]
+    b_key = keys[1] if len(keys) > 1 else keys[0]
+    ta = get_demo(*a_key)
+    tb = get_demo(*b_key)
+    if ta is None or tb is None:
+        return None
+    ra = _trace_to_result(ta)
+    rb = _trace_to_result(tb)
+    d = diff_traces(ra, rb)
+    d["trace_a"] = ta["steps"]
+    d["trace_b"] = tb["steps"]
+    d["demo"] = True
+    return d
+
+
+def _trace_to_result(trace):
+    """Convert a demo trace dict into a minimal IdunResult for diff_traces()."""
+    from idun.client import IdunResult, Step
+    steps = [
+        Step(kind=s.get("kind", ""), text=s.get("text", ""), tool=s.get("tool", ""),
+              query=s.get("query", ""), status=s.get("status", ""), id=s.get("id", ""))
+        for s in trace.get("steps", [])
+    ]
+    return IdunResult(text=trace.get("answer", ""), steps=steps, model=trace.get("model", ""))
 
 
 def _client():
@@ -171,7 +226,12 @@ class Handler(BaseHTTPRequestHandler):
             elif route == "/api/chat/stream":
                 body = self._body()
                 prompt = (body.get("messages") or [{}])[-1].get("content", "")
+                if isinstance(prompt, list):
+                    # allow [{role, content:[{type,text}]}] shape
+                    prompt = (prompt[-1] or {}).get("text", "") if prompt else ""
                 max_tokens = body.get("max_tokens", 4096)
+                demo_key = body.get("demo_key")  # (pack,key) tuple from expo.html
+
                 # Stream steps progressively AS THEY COMPLETE. Foundry returns a
                 # complete output[] (no token stream), so each step is emitted as
                 # soon as the SDK resolves it; the answer arrives in `done`.
@@ -180,6 +240,43 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_header("Cache-Control", "no-store")
                 self._cors()
                 self.end_headers()
+
+                # Decide: live run, or a recorded demo replay (no token / explicit).
+                trace = None
+                try:
+                    if demo_key:
+                        pk = tuple(demo_key) if isinstance(demo_key, list) else None
+                        if pk:
+                            trace = _demo_trace(pk[0], pk[1])
+                    if trace is None:
+                        # try live; on missing/expired token fall back to demo
+                        try:
+                            res = _run_complete(prompt, max_tokens)
+                        except RuntimeError as e:
+                            if "No valid FOUNDRY_TOKEN" in str(e) or "token" in str(e).lower():
+                                trace = _demo_trace_for_prompt(prompt)
+                            else:
+                                raise
+                except BrokenPipeError:
+                    pass  # client closed the connection mid-stream
+
+                if trace is not None:
+                    # Demo replay — same NDJSON shape as a live run.
+                    for i, s in enumerate(trace["steps"]):
+                        ev = json.dumps(
+                            {"type": "step", "index": i, "step": s},
+                            ensure_ascii=False) + "\n"
+                        self.wfile.write(ev.encode("utf-8"))
+                        self.wfile.flush()
+                    done = json.dumps(
+                        {"type": "done", "answer": trace["answer"],
+                         "steps": trace["steps"], "model": trace["model"],
+                         "demo": True},
+                        ensure_ascii=False) + "\n"
+                    self.wfile.write(done.encode("utf-8"))
+                    self.wfile.flush()
+                    return
+
                 try:
                     res = _run_complete(prompt, max_tokens)
                     for i, s in enumerate(res.steps):
@@ -204,16 +301,26 @@ class Handler(BaseHTTPRequestHandler):
                 pb = body.get("prompt_b", "")
                 max_tokens = body.get("max_tokens", 4096)
                 # Run both completions concurrently (Foundry latency is the bottleneck).
-                from concurrent.futures import ThreadPoolExecutor
-                with ThreadPoolExecutor(max_workers=2) as ex:
-                    fa = ex.submit(_run_complete, pa, max_tokens)
-                    fb = ex.submit(_run_complete, pb, max_tokens)
-                    ra = fa.result()
-                    rb = fb.result()
-                d = diff_traces(ra, rb)
-                d["trace_a"] = [_step_to_dict(s) for s in ra.steps]
-                d["trace_b"] = [_step_to_dict(s) for s in rb.steps]
-                self._json(d)
+                try:
+                    from concurrent.futures import ThreadPoolExecutor
+                    with ThreadPoolExecutor(max_workers=2) as ex:
+                        fa = ex.submit(_run_complete, pa, max_tokens)
+                        fb = ex.submit(_run_complete, pb, max_tokens)
+                        ra = fa.result()
+                        rb = fb.result()
+                    d = diff_traces(ra, rb)
+                    d["trace_a"] = [_step_to_dict(s) for s in ra.steps]
+                    d["trace_b"] = [_step_to_dict(s) for s in rb.steps]
+                    self._json(d)
+                except RuntimeError as e:
+                    # No live token (or other fatal): serve a recorded demo diff
+                    # so the side-by-side view still renders at a booth.
+                    if "No valid FOUNDRY_TOKEN" in str(e) or "token" in str(e).lower():
+                        demo = _demo_diff(pa, pb)
+                        if demo is not None:
+                            self._json(demo)
+                            return
+                    raise
             elif route == "/api/export":
                 body = self._body()
                 prompt = (body.get("messages") or [{}])[-1].get("content", "") or body.get("prompt", "")
@@ -231,9 +338,47 @@ class Handler(BaseHTTPRequestHandler):
             elif route == "/api/packs":
                 try:
                     packs = list_packs()
+                    enriched = []
+                    for p in packs:
+                        entry = dict(p)
+                        try:
+                            data = load_pack(p["name"])
+                            entry["keys"] = [
+                                {"key": x.get("key"), "title": x.get("title", "")}
+                                for x in data.get("prompts", [])
+                            ]
+                        except Exception:
+                            entry["keys"] = []
+                        enriched.append(entry)
+                    packs = enriched
                 except Exception as e:
                     packs = [{"error": str(e)}]
                 self._json({"packs": packs})
+            elif route == "/api/expo":
+                # Offline-safe: flatten every prompt pack into demo entries the
+                # Expo showcase can render + run. No Foundry token required, so
+                # the gallery loads even when the router has no live creds.
+                try:
+                    packs = list_packs()
+                    demos = []
+                    for p in packs:
+                        try:
+                            data = load_pack(p["name"])
+                        except Exception:
+                            continue
+                        for x in data.get("prompts", []):
+                            prompt = x.get("prompt", "")
+                            demos.append({
+                                "pack": p["name"],
+                                "key": x.get("key"),
+                                "title": x.get("title", x.get("key", "")),
+                                "pack_title": p.get("title", ""),
+                                "prompt": prompt,
+                                "preview": (prompt[:160] + ("…" if len(prompt) > 160 else "")),
+                            })
+                except Exception as e:
+                    demos = [{"error": str(e)}]
+                self._json({"demos": demos, "count": len(demos)})
             elif route == "/api/run":
                 body = self._body()
                 pack = body.get("pack", "")

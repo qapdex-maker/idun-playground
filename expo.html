@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contoso Expo 2027 — Idun Tool-Agent Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "foundry-blue": "var(--accent-blue)",
+          "foundry-blue-700": "var(--accent-blue-700)",
+          "foundry-purple": "var(--accent-purple)",
+          "foundry-ink": "var(--ink)",
+          "foundry-surface": "var(--surface)",
+          "foundry-surface-2": "var(--surface-2)",
+          "foundry-border": "var(--border)",
+          "foundry-muted": "var(--muted)",
+          "foundry-success": "#107c10",
+          "foundry-warn": "#d83b01",
+          "foundry-bg": "var(--bg)"
+        },
+        "borderRadius": { "DEFAULT": "2px", "lg": "4px", "xl": "6px" },
+        "fontFamily": {
+          "segoe": ['"Segoe UI"', "Inter", "system-ui", "sans-serif"],
+          "foundry-serif": ['"Playfair Display"', "Georgia", "serif"],
+          "mono": ['"JetBrains Mono"', "monospace"]
+        },
+        "fontSize": {
+          "label": ["12px", {"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],
+          "display": ["40px", {"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],
+          "title": ["22px", {"lineHeight":"30px","fontWeight":"600"}],
+          "body": ["14px", {"lineHeight":"22px"}],
+          "body-lg": ["16px", {"lineHeight":"26px"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f5f5f5;
+    --surface-2: #fafafa;
+    --border: #e0e0e0;
+    --ink: #1b1a19;
+    --muted: #616161;
+    --accent-blue: #0067B8;
+    --accent-blue-700: #005A9E;
+    --accent-purple: #5c2d91;
+  }
+  .dark {
+    --bg: #0e0e12;
+    --surface: #16161c;
+    --surface-2: #1c1c24;
+    --border: #2c2c36;
+    --ink: #f3f3f5;
+    --muted: #9a9aa8;
+    --accent-blue: #3b82f6;
+    --accent-blue-700: #2563eb;
+    --accent-purple: #8b5cf6;
+  }
+  body {
+    font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--bg);
+    color: var(--ink);
+  }
+  h1, h2, h3, .font-foundry { font-family: "Playfair Display", Georgia, serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; line-height: 1; display:inline-block; }
+  .paper-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06); }
+  .dark .paper-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 4px 18px rgba(0,0,0,0.45); }
+  .grid-bg {
+    background-image: radial-gradient(circle at 14% 0%, rgba(139,92,246,0.16), transparent 44%),
+                     radial-gradient(circle at 88% 4%, rgba(59,130,246,0.10), transparent 40%),
+                     linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  }
+  .expo-hero-glow { box-shadow: 0 0 0 1px rgba(139,92,246,0.45), 0 10px 40px rgba(139,92,246,0.22); }
+  .btn-foundry { background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: #fff; box-shadow: 0 4px 16px rgba(139,92,246,0.30); }
+  .btn-foundry:hover { filter: brightness(1.08); box-shadow: 0 6px 22px rgba(139,92,246,0.45); }
+  .btn-foundry:disabled { opacity: 0.55; box-shadow: none; filter: grayscale(0.3); }
+  .topbar-logo { background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .cap-card { border: 1px solid var(--border); background: var(--surface-2); }
+  .cap-card:hover { border-color: var(--accent-purple); box-shadow: 0 0 0 1px rgba(139,92,246,0.4); }
+  .spinner { width:16px; height:16px; border:2px solid rgba(139,92,246,0.25); border-top-color:var(--accent-purple); border-radius:50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .chip { font-family:"Segoe UI",sans-serif; font-size:11px; font-weight:600; letter-spacing:0.03em; }
+  .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.35); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body class="min-h-screen pb-20 selection:bg-foundry-purple/30">
+
+<!-- Foundry top bar -->
+<header class="fixed top-0 w-full bg-foundry-bg/85 backdrop-blur border-b border-foundry-border z-50">
+  <div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img src="assets/foundry_logo_white.svg" alt="Microsoft Foundry" class="h-7 w-7" />
+      <span class="material-symbols-outlined text-[22px] glow-purple text-foundry-purple rounded-lg">auto_awesome</span>
+      <div class="flex items-baseline gap-2">
+        <span class="font-segoe font-semibold text-[15px] text-foundry-ink">Azure AI Foundry</span>
+        <span class="text-foundry-muted text-[13px]">/</span>
+        <span class="font-segoe text-[13px] text-foundry-muted">NatureLM-Idun-5-MoE</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors" onclick="location.href='/playground.html'">
+        <span class="material-symbols-outlined text-[16px] align-middle">chat</span> Playground
+      </button>
+      <button class="font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors" onclick="location.href='/diff.html'">
+        <span class="material-symbols-outlined text-[16px] align-middle">compare</span> Trace Diff
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="grid-bg min-h-screen pt-24 max-w-[1440px] mx-auto px-6">
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden rounded-xl border border-foundry-border bg-foundry-surface paper-shadow expo-hero-glow px-8 py-10 mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+      <div>
+        <div class="chip text-foundry-purple mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">emoji_events</span> BOOTH SHOWCASE</div>
+        <h1 class="font-foundry text-display text-foundry-ink leading-none">Contoso Expo 2027</h1>
+        <p class="font-segoe text-body-lg text-foundry-muted mt-3 max-w-2xl">Live-Demo des <span class="text-foundry-purple font-semibold">NatureLM-Idun-5-MoE</span> Tool-Agents. Demo wählen, dann <span class="font-semibold">Live starten</span> — die Reasoning- und Tool-Schritte erscheinen live auf der Bühne.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <div class="cap-card rounded-lg px-4 py-3 text-center"><div class="chip text-foundry-muted">AGENT</div><div class="font-segoe text-[13px] text-foundry-ink mt-1">NatureLM-Idun-5-MoE</div></div>
+        <div class="cap-card rounded-lg px-4 py-3 text-center"><div class="chip text-foundry-muted">BACKEND</div><div class="font-segoe text-[13px] text-foundry-ink mt-1">Azure AI Foundry</div></div>
+        <div class="cap-card rounded-lg px-4 py-3 text-center"><div class="chip text-foundry-muted">DEMOS</div><div id="demo-count" class="font-segoe text-[13px] text-foundry-ink mt-1">…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTROL ROW: dropdown (no auto-run) + explicit button -->
+  <section class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5 mb-6">
+    <div class="chip text-foundry-muted mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">tune</span> DEMO-STATION WÄHLEN</div>
+    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      <select id="demo-select" class="font-segoe text-[14px] border border-foundry-border rounded px-3 py-2.5 bg-foundry-surface-2 text-foundry-ink focus:border-foundry-purple outline-none flex-grow">
+        <option value="">— Demo laden …</option>
+      </select>
+      <button id="run-btn" class="btn-foundry px-6 py-2.5 rounded font-segoe text-[13px] font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50">
+        <span id="run-icon" class="material-symbols-outlined text-[18px]">play_arrow</span>
+        <span id="run-label">Live starten ▸</span>
+      </button>
+      <button id="rand-btn" class="font-segoe text-[13px] px-4 py-2.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors">
+        <span class="material-symbols-outlined text-[16px] align-middle">shuffle</span> Zufall
+      </button>
+    </div>
+    <div id="control-status" class="font-segoe text-[13px] text-foundry-muted mt-3">Bereit — Demo oben wählen und <span class="font-semibold">Live starten</span> klicken.</div>
+  </section>
+
+  <!-- STAGE -->
+  <section class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow flex flex-col overflow-hidden">
+    <div class="p-5 border-b border-foundry-border flex items-center justify-between">
+      <div>
+        <h2 class="font-foundry text-title text-foundry-ink">Live Stage</h2>
+        <p class="font-segoe text-[13px] text-foundry-muted">Agent-Trajectory in Echtzeit</p>
+      </div>
+      <div class="flex items-center gap-2"><div class="status-dot bg-emerald-400 animate-pulse"></div><span class="chip text-emerald-400 tracking-widest uppercase">Booth Mode</span></div>
+    </div>
+
+    <div class="p-5 flex-grow flex flex-col gap-4 min-h-[520px]">
+      <div>
+        <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> AKTIVE DEMO</div>
+        <div id="stage-prompt" class="font-segoe text-body text-foundry-ink bg-foundry-surface-2 border border-foundry-border rounded p-4 min-h-[72px]">Wähle oben eine Demo-Station, um die Live-Bühne zu starten.</div>
+      </div>
+
+      <div id="stage-status" class="font-segoe text-[13px] text-foundry-muted">Bereit.</div>
+
+      <div>
+        <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">account_tree</span> AGENT TRACE</div>
+        <div id="stage-trace" class="space-y-2 max-h-[280px] overflow-y-auto custom-scrollbar"></div>
+      </div>
+
+      <div>
+        <div class="chip text-foundry-muted mb-2 flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat</span> ANTWORT</div>
+        <div id="stage-answer" class="font-segoe text-body text-foundry-ink whitespace-pre-wrap bg-foundry-surface-2 border border-foundry-border rounded p-4 min-h-[140px] max-h-[420px] overflow-y-auto custom-scrollbar"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="mt-10 mb-2 text-center text-[12px] text-foundry-muted">
+    Powered by <span class="text-foundry-purple font-semibold">NatureLM-Idun-5-MoE</span> · Azure AI Foundry — Tool-Agent Showcase
+  </footer>
+</main>
+
+<!-- Reusable TraceViz component (shared with playground.html + diff.html) -->
+<link rel="stylesheet" href="trace-viz.css"/>
+<script src="trace-viz.js"></script>
+
+<script>
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  const sel = document.getElementById('demo-select');
+  const runBtn = document.getElementById('run-btn');
+  const runIcon = document.getElementById('run-icon');
+  const runLabel = document.getElementById('run-label');
+  const randBtn = document.getElementById('rand-btn');
+  const controlStatus = document.getElementById('control-status');
+  const stagePrompt = document.getElementById('stage-prompt');
+  const stageStatus = document.getElementById('stage-status');
+  const stageTrace = document.getElementById('stage-trace');
+  const stageAnswer = document.getElementById('stage-answer');
+  let DEMOS = [];
+  let busy = false;
+
+  async function loadExpo() {
+    try {
+      const resp = await fetch('/api/expo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      const data = await resp.json().catch(() => ({}));
+      DEMOS = (data.demos || []).filter(d => !d.error);
+      document.getElementById('demo-count').textContent = DEMOS.length;
+      sel.innerHTML = '<option value="">— Demo laden …</option>';
+      DEMOS.forEach((d, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      // stash the (pack,key) on the element so the run can request a demo replay
+      opt.dataset.pack = d.pack;
+      opt.dataset.key = d.key;
+      opt.textContent = `${d.pack_title || d.pack} · ${d.title}`;
+      sel.appendChild(opt);
+      });
+      if (!DEMOS.length) {
+      controlStatus.textContent = "Keine Demo-Prompts geladen (Prompt-Packs fehlen).";
+      }
+    } catch (e) {
+      controlStatus.textContent = "Expo-Daten nicht erreichbar.";
+    }
+  }
+
+  function selectedDemo() {
+    const i = parseInt(sel.value, 10);
+    if (isNaN(i) || i < 0 || i >= DEMOS.length) return null;
+    return DEMOS[i];
+  }
+
+  function setBusy(on) {
+    busy = on;
+    runBtn.disabled = on;
+    randBtn.disabled = on;
+    sel.disabled = on;
+    if (on) { runIcon.textContent = "hourglass_top"; runLabel.textContent = "Denkt…"; }
+    else { runIcon.textContent = "play_arrow"; runLabel.textContent = "Live starten ▸"; }
+  }
+
+  // Stream a prompt with retry on transient 5xx/429 (Foundry is flaky under load).
+  async function streamWithRetry(prompt, demoKey, maxAttempts = 3) {
+    let lastErr = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const body = { messages: [{ role: 'user', content: prompt }] };
+        if (demoKey) body.demo_key = demoKey;  // request a recorded replay
+        const resp = await fetch('/api/chat/stream', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (resp.ok) return await readStream(resp);
+        // read server error body for a helpful message
+        let msg = "";
+        try { const err = await resp.json(); msg = (err && err.error) || ""; } catch (e) {}
+        if (resp.status === 500 || resp.status === 502 || resp.status === 503 || resp.status === 429) {
+          lastErr = `HTTP ${resp.status}${msg ? " — " + msg : ""}`;
+          if (attempt < maxAttempts) { await new Promise(r => setTimeout(r, 700 * attempt)); continue; }
+          throw new Error(lastErr);
+        }
+        // non-retryable (e.g. token missing): surface immediately
+        throw new Error(msg ? msg : `HTTP ${resp.status}`);
+      } catch (e) {
+        if (e.message && (e.message.includes("HTTP 50") || e.message.includes("HTTP 429"))) {
+          lastErr = e.message;
+          if (attempt < maxAttempts) { await new Promise(r => setTimeout(r, 700 * attempt)); continue; }
+        }
+        throw e;
+      }
+    }
+    throw new Error(lastErr || "unbekannter Fehler");
+  }
+
+  async function readStream(resp) {
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    let stepCount = 0;
+    let finalAnswer = "";
+    let finalSteps = null;
+    let finalModel = "";
+    let finalDemo = false;
+    stageTrace.innerHTML = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        let ev;
+        try { ev = JSON.parse(line); } catch (e) { continue; }
+        if (ev.type === 'step') {
+          if (stepCount > 0) TraceViz.markDone(stageTrace, stepCount - 1, ev.step);
+          TraceViz.markRunning(stageTrace, ev.step);
+          stepCount++;
+          stageStatus.textContent = `Agent arbeitet… (${stepCount} Schritt${stepCount > 1 ? 'e' : ''})`;
+        } else if (ev.type === 'done') {
+          if (Array.isArray(ev.steps)) {
+            finalSteps = ev.steps;
+            // fully (re)render so nothing is missed, then mark the last step done
+            TraceViz.render(stageTrace, ev.steps);
+            if (ev.steps.length) TraceViz.markDone(stageTrace, ev.steps.length - 1, ev.steps[ev.steps.length - 1]);
+          }
+          if (ev.answer != null) finalAnswer = ev.answer;
+          if (ev.model) finalModel = ev.model;
+          finalDemo = !!ev.demo;
+        } else if (ev.type === 'error') {
+          throw new Error(ev.error || 'stream error');
+        }
+      }
+    }
+    return { steps: finalSteps, answer: finalAnswer, model: finalModel, stepCount };
+  }
+
+  async function runSelected() {
+    if (busy) return;
+    const d = selectedDemo();
+    if (!d) { controlStatus.textContent = "Bitte zuerst eine Demo aus dem Dropdown wählen."; return; }
+    // request the recorded replay for this exact (pack,key) so the stage shows a
+    // real trace even with no live token.
+    const opt = sel.options[sel.selectedIndex];
+    const demoKey = (opt && opt.dataset && opt.dataset.pack)
+      ? [opt.dataset.pack, opt.dataset.key] : null;
+    setBusy(true);
+    stagePrompt.textContent = d.prompt;
+    stageStatus.innerHTML = '<span class="spinner inline-block align-middle mr-2"></span>Agent startet…';
+    stageTrace.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Agent denkt… (Schritte erscheinen live)</div>';
+    stageAnswer.textContent = "";
+    const t0 = performance.now();
+    try {
+      const res = await streamWithRetry(d.prompt, demoKey);
+      const ms = Math.round(performance.now() - t0);
+      stageAnswer.textContent = res.answer || "(keine Antwort erhalten)";
+      stageAnswer.scrollTop = stageAnswer.scrollHeight;
+      stageAnswer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      const n = res.steps ? res.steps.length : res.stepCount;
+      const demoBadge = res.demo
+        ? ' · <span class="text-foundry-warn font-semibold">DEMO-REPLAY</span>'
+        : '';
+      stageStatus.innerHTML = `Antwort in ${ms} ms · ${n} Schritt${n > 1 ? 'e' : ''}${demoBadge}`;
+      if (res.demo) {
+        controlStatus.innerHTML = `✓ „${d.title}" (Demo-Replay). Für Live-Ergebnis <code>idun login</code> ausführen.`;
+      } else {
+        controlStatus.textContent = `✓ "${d.title}" gelaufen in ${ms} ms.`;
+      }
+    } catch (e) {
+      const msg = e.message || String(e);
+      stageStatus.textContent = "Fehler";
+      if (/No valid FOUNDRY_TOKEN|not valid|token/i.test(msg)) {
+        stageAnswer.textContent =
+          "Die Live-Demo benötigt einen gültigen Foundry-Token.\n\nBitte im Terminal ausführen:\n  idun login\n\nDanach diese Demo erneut starten.";
+        controlStatus.textContent = "Live-Token fehlt oder abgelaufen — `idun login` ausführen.";
+      } else {
+        stageAnswer.textContent = "Verbindungsfehler: " + msg;
+        controlStatus.textContent = "Fehler: " + msg;
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  runBtn.onclick = runSelected;
+  randBtn.onclick = () => {
+    if (!DEMOS.length) return;
+    const i = Math.floor(Math.random() * DEMOS.length);
+    sel.value = String(i);
+    runSelected();
+  };
+  // Enter in the dropdown starts the run (explicit action, not on hover/selection)
+  sel.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSelected(); });
+
+  loadExpo();
+</script>
+</body>
+</html>

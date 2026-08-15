@@ -125,6 +125,9 @@
     </div>
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">
+        <button class="font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors" onclick="location.href='/expo.html'">
+          <span class="material-symbols-outlined text-[16px] align-middle">emoji_events</span> Expo
+        </button>
         <button class="font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors" onclick="location.href='/diff.html'">
           <span class="material-symbols-outlined text-[16px] align-middle">compare</span> Trace Diff
         </button>
@@ -384,13 +387,23 @@
   }
   let busy = false;
   // SSE-style streaming: read the router's chunked /api/chat/stream response
-  // and render steps + answer token-by-token as they arrive.
+  // and render steps + answer as they arrive. On the final `done` event we
+  // fully (re)render the trace from ev.steps so no step is ever missed, then
+  // scroll the answer into view — this guarantees the answer shows up.
   async function streamPrompt(prompt, model) {
     const resp = await fetch('/api/chat/stream', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] })
     });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    if (!resp.ok) {
+      // Surface the router's real error (token missing / expired / 5xx) instead of a bare code.
+      let msg = "";
+      try { const err = await resp.json(); msg = (err && err.error) || ""; } catch (e) {}
+      if (resp.status === 500 && /No valid FOUNDRY_TOKEN|token/i.test(msg)) {
+        throw new Error("Live-Token fehlt/abgelaufen — `idun login` ausführen.");
+      }
+      throw new Error((msg || ('HTTP ' + resp.status)) + (resp.status === 500 || resp.status === 429 ? " (Foundry-Server temporär überlastet — erneut versuchen)" : ""));
+    }
     const reader = resp.body.getReader();
     const dec = new TextDecoder();
     let buf = '';
@@ -414,16 +427,24 @@
           stepCount++;
           statusEl.textContent = `Agent arbeitet… (${stepCount} Schritt${stepCount > 1 ? 'e' : ''})`;
         } else if (ev.type === 'done') {
-          if (stepCount > 0 && Array.isArray(ev.steps)) {
-            TraceViz.markDone(traceEl, stepCount - 1, ev.steps[stepCount - 1] || {});
-          } else if (Array.isArray(ev.steps)) {
+          if (Array.isArray(ev.steps) && ev.steps.length) {
+            // Full authoritative render of the final trace (no missed steps).
             renderTrace(ev.steps);
+            TraceViz.markDone(traceEl, ev.steps.length - 1, ev.steps[ev.steps.length - 1]);
+          } else if (stepCount === 0) {
+            renderTrace([]);
           }
           if (ev.answer != null) {
             answerEl.textContent = ev.answer;
             answerEl.scrollTop = answerEl.scrollHeight;
+            answerEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
           }
           if (ev.model) document.getElementById('model').dataset.lastModel = ev.model;
+          if (ev.demo) {
+            // router fell back to a recorded replay (no live token)
+            const badge = ' · <span class="text-foundry-warn font-semibold">DEMO-REPLAY</span>';
+            statusEl.innerHTML += badge;
+          }
         } else if (ev.type === 'error') {
           throw new Error(ev.error || 'stream error');
         }
@@ -524,10 +545,16 @@
       });
     } catch (e) { packList.innerHTML = '<div class="text-[12px] text-foundry-muted italic">Packs nicht erreichbar.</div>'; }
   }
-  // helper: fetch first prompt key of a pack (router /api/run needs key)
+  // helper: resolve the first real prompt key of a pack from the (now key-aware)
+  // /api/packs response, so the playground picker runs an actual demo instead of
+  // the non-existent "demo" key (which 404'd before).
   async function firstKey(pack) {
-    // The packs endpoint does not return keys; query the SDK-style via a probe.
-    // For now, default to "demo"; real packs expose their key set client-side.
+    try {
+      const resp = await fetch('/api/packs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      const data = await resp.json().catch(() => ({}));
+      const found = (data.packs || []).find(p => p.name === pack && !p.error);
+      if (found && found.keys && found.keys.length) return found.keys[0].key;
+    } catch (e) { /* fall through */ }
     return "demo";
   }
   loadPacks();

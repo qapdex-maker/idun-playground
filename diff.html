@@ -158,6 +158,12 @@
     const same = diff.same_answer ? 'identisch' : 'unterschiedlich';
     document.getElementById('status').textContent =
       `Steps A=${diff.n_steps_a} B=${diff.n_steps_b} · ${diff.shared_queries.length} shared · Antwort ${same}`;
+    if (diff.demo) {
+      const badge = document.createElement('span');
+      badge.className = 'text-foundry-warn font-semibold ml-2';
+      badge.textContent = '· DEMO-REPLAY';
+      document.getElementById('status').appendChild(badge);
+    }
   }
 
   async function runDiff() {
@@ -167,18 +173,54 @@
     document.getElementById('run').disabled = true;
     document.getElementById('status').textContent = 'Läuft…';
     try {
-      const resp = await fetch('/api/diff', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ prompt_a: pa, prompt_b: pb })
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const diff = await resp.json();
+      const diff = await diffWithRetry(pa, pb, 3);
       renderDiff(diff);
     } catch (e) {
-      document.getElementById('status').textContent = `Fehler: ${e.message}`;
+      const msg = e.message || String(e);
+      let friendly;
+      if (/No valid FOUNDRY_TOKEN|not valid|token/i.test(msg)) {
+        friendly = "Live-Token fehlt/abgelaufen — `idun login` ausführen.";
+      } else if (/HTTP 50|HTTP 429|transient/i.test(msg)) {
+        friendly = "Foundry temporär nicht erreichbar (auf Server-Seite). Erneut versuchen.";
+      } else {
+        friendly = msg;
+      }
+      document.getElementById('status').textContent = `Fehler: ${friendly}`;
+      document.getElementById('colA').innerHTML = '<div class="text-[12px] text-foundry-muted italic">Kein Trace — siehe Status oben.</div>';
+      document.getElementById('colB').innerHTML = '<div class="text-[12px] text-foundry-muted italic">Kein Trace — siehe Status oben.</div>';
     } finally {
       document.getElementById('run').disabled = false;
     }
+  }
+
+  // /api/diff runs TWO live completions; Foundry is flaky under load, so retry
+  // the whole diff on transient 5xx/429 a couple of times before giving up.
+  async function diffWithRetry(pa, pb, maxAttempts) {
+    let lastErr = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const resp = await fetch('/api/diff', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ prompt_a: pa, prompt_b: pb })
+        });
+        if (resp.ok) return await resp.json();
+        let msg = "";
+        try { const err = await resp.json(); msg = (err && err.error) || ""; } catch (e) {}
+        if ([500, 502, 503, 429].includes(resp.status)) {
+          lastErr = (msg ? msg : `HTTP ${resp.status}`);
+          if (attempt < maxAttempts) { await new Promise(r => setTimeout(r, 800 * attempt)); continue; }
+          throw new Error(lastErr);
+        }
+        throw new Error(msg ? msg : `HTTP ${resp.status}`);
+      } catch (e) {
+        if (/HTTP 50|HTTP 429|transient/i.test(e.message || "")) {
+          lastErr = e.message;
+          if (attempt < maxAttempts) { await new Promise(r => setTimeout(r, 800 * attempt)); continue; }
+        }
+        throw e;
+      }
+    }
+    throw new Error(lastErr || "unbekannter Fehler");
   }
   document.getElementById('run').onclick = runDiff;
 
