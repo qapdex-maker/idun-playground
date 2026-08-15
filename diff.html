@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="mode-toggle.css"/>
+<link rel="stylesheet" href="kiosk.css"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -75,6 +76,7 @@
     </div>
     <div class="flex items-center gap-2">
       <div id="mode-mount" class="mr-1"></div>
+      <div id="kiosk-mount" class="mr-1"></div>
       <button id="theme-toggle" class="material-symbols-outlined text-[22px] text-foundry-muted hover:text-foundry-purple cursor-pointer">light_mode</button>
     </div>
   </div>
@@ -126,6 +128,7 @@
 <link rel="stylesheet" href="trace-viz.css"/>
 <script src="trace-viz.js"></script>
 <script src="mode-toggle.js"></script>
+<script src="kiosk.js"></script>
 
 <script>
   const root = document.documentElement;
@@ -252,6 +255,10 @@
       document.getElementById('status').textContent =
         mode === 'demo' ? 'Modus: DEMO — aufgezeichnete Replays.' : 'Modus: LIVE — echter Agent-Lauf.';
     });
+  }
+  // Mount the Kiosk/Vollbild button (also auto-enters on ?kiosk=1)
+  if (window.IdunKiosk) {
+    IdunKiosk.mountButton(document.getElementById('kiosk-mount'));
   }
 </script>
 </body>

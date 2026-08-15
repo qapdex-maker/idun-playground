@@ -1,0 +1,70 @@
+/* Kiosk / fullscreen booth mode styles (shared across playground pages) */
+
+/* Enter button in the topbar (hidden while already in kiosk) */
+.kiosk-enter-btn {
+  font-size: 20px;
+  color: var(--muted, #9a9aa8);
+  border: 1px solid var(--border, #2c2c36);
+  border-radius: 6px;
+  padding: 2px 6px;
+  cursor: pointer;
+  background: var(--surface-2, #1c1c24);
+  line-height: 1;
+}
+.kiosk-enter-btn:hover { color: var(--accent-purple, #8b5cf6); border-color: var(--accent-purple, #8b5cf6); }
+
+/* Floating toolbar, only visible in kiosk mode */
+.kiosk-bar {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 90;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border: 1px solid var(--border, #2c2c36);
+  border-radius: 999px;
+  background: rgba(20, 20, 28, 0.82);
+  backdrop-filter: blur(8px);
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+}
+.kiosk-bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-purple, #8b5cf6);
+}
+.kiosk-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--accent-purple, #8b5cf6);
+  color: #fff;
+}
+.kiosk-exit-btn .material-symbols-outlined { font-size: 20px; }
+
+/* ---- Kiosk mode active: strip chrome, keep only the stage ---- */
+.kiosk-mode header,
+.kiosk-mode footer,
+.kiosk-mode .kiosk-enter-btn { display: none !important; }
+.kiosk-mode .kiosk-bar { display: flex !important; }
+.kiosk-mode body,
+.kiosk-mode.main { padding: 0 !important; }
+.kiosk-mode main {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 100vh !important;
+  height: 100vh !important;
+}
+/* On the Expo page, hide the hero + control row, keep the live stage */
+.kiosk-mode .expo-hero-glow,
+.kiosk-mode section.bg-foundry-surface { display: none !important; }
+.kiosk-mode #stage-trace,
+.kiosk-mode #stage-answer { max-height: none !important; }
+.kiosk-mode #stage-answer { overflow-y: auto !important; }

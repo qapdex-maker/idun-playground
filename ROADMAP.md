@@ -78,3 +78,7 @@ Status quo, nahe, mittelfristige und Vision-Ziele für das Idun-Projekt
    Expo/Playground/Diff. DEMO erzwingt Replays (kein Netzwerk), LIVE
    versucht den echten Lauf (Router fällt bei abgelaufenem Token auf Demo
    zurück). Modus persistiert in localStorage.
+10. **Kiosk/Vollbild-Modus:** kiosk.js/.css blendet Topbar/Footer/sekundäre
+   Controls aus und füllt die Bühne rahmenlos (Expo-Fokus). Button in jeder
+   Topbar + Auto-Enter via `?kiosk=1` (persistiert). Esc / Exit-Button verlassen.
+   Default-Modus ist LIVE (nur bei Token-Fehler greift Demo-Replay).

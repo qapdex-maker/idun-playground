@@ -10,13 +10,14 @@
   'use strict';
 
   var KEY = 'idun-mode';
-  // default to demo so a booth with no token always shows a replay
+  // default to LIVE: the router tries a real Foundry run and only falls back to
+  // a recorded demo when no valid token is present.
   function current() {
     try {
       var v = localStorage.getItem(KEY);
-      return v === 'live' ? 'live' : 'demo';
+      return v === 'demo' ? 'demo' : 'live';
     } catch (e) {
-      return 'demo';
+      return 'live';
     }
   }
   function set(m) {

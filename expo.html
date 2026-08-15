@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="mode-toggle.css"/>
+<link rel="stylesheet" href="kiosk.css"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -113,6 +114,7 @@
     </div>
     <div class="flex items-center gap-3">
       <div id="mode-mount" class="mr-1"></div>
+      <div id="kiosk-mount" class="mr-1"></div>
       <button class="font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors" onclick="location.href='/playground.html'">
         <span class="material-symbols-outlined text-[16px] align-middle">chat</span> Playground
       </button>
@@ -198,6 +200,7 @@
 <link rel="stylesheet" href="trace-viz.css"/>
 <script src="trace-viz.js"></script>
 <script src="mode-toggle.js"></script>
+<script src="kiosk.js"></script>
 
 <script>
   function esc(s) {
@@ -400,6 +403,10 @@
         ? 'Modus: DEMO — aufgezeichnete Replays (kein Live-Token nötig).'
         : 'Modus: LIVE — versucht echten Agent-Lauf (idun login falls nötig).';
     });
+  }
+  // Mount the Kiosk/Vollbild button (also auto-enters on ?kiosk=1)
+  if (window.IdunKiosk) {
+    IdunKiosk.mountButton(document.getElementById('kiosk-mount'));
   }
 
   loadExpo();

@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="mode-toggle.css"/>
+<link rel="stylesheet" href="kiosk.css"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -134,6 +135,7 @@
         </button>
         <button id="theme-toggle" class="material-symbols-outlined text-[22px] text-foundry-muted hover:text-foundry-purple cursor-pointer">light_mode</button>
         <div id="mode-mount" class="ml-1"></div>
+        <div id="kiosk-mount" class="ml-1"></div>
       </div>
   </div>
 </header>
@@ -274,6 +276,7 @@
 <link rel="stylesheet" href="trace-viz.css"/>
 <script src="trace-viz.js"></script>
 <script src="mode-toggle.js"></script>
+<script src="kiosk.js"></script>
 
 <script>
   // Theme: default dark, persist choice
@@ -568,6 +571,10 @@
     IdunMode.mount(document.getElementById('mode-mount'), function (mode) {
       logEvent(`MODE: switched to ${mode}`, "event");
     });
+  }
+  // Mount the Kiosk/Vollbild button (also auto-enters on ?kiosk=1)
+  if (window.IdunKiosk) {
+    IdunKiosk.mountButton(document.getElementById('kiosk-mount'));
   }
 
   loadPacks();
