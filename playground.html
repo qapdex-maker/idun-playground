@@ -6,6 +6,7 @@
 <title>Azure AI Foundry — NatureLM-Idun-5-MoE Playground</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="mode-toggle.css"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -132,6 +133,7 @@
           <span class="material-symbols-outlined text-[16px] align-middle">compare</span> Trace Diff
         </button>
         <button id="theme-toggle" class="material-symbols-outlined text-[22px] text-foundry-muted hover:text-foundry-purple cursor-pointer">light_mode</button>
+        <div id="mode-mount" class="ml-1"></div>
       </div>
   </div>
 </header>
@@ -271,6 +273,7 @@
 <!-- Phase 4.2: reusable TraceViz component (shared with diff.html + other agents) -->
 <link rel="stylesheet" href="trace-viz.css"/>
 <script src="trace-viz.js"></script>
+<script src="mode-toggle.js"></script>
 
 <script>
   // Theme: default dark, persist choice
@@ -391,9 +394,12 @@
   // fully (re)render the trace from ev.steps so no step is ever missed, then
   // scroll the answer into view — this guarantees the answer shows up.
   async function streamPrompt(prompt, model) {
+    const forceDemo = window.IdunMode && IdunMode.current() === 'demo';
+    const body = { model, messages: [{ role: 'user', content: prompt }] };
+    if (forceDemo) body.force_demo = true;
     const resp = await fetch('/api/chat/stream', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify(body)
     });
     if (!resp.ok) {
       // Surface the router's real error (token missing / expired / 5xx) instead of a bare code.
@@ -557,6 +563,13 @@
     } catch (e) { /* fall through */ }
     return "demo";
   }
+  // Mount the shared Live/Demo toggle in the topbar.
+  if (window.IdunMode) {
+    IdunMode.mount(document.getElementById('mode-mount'), function (mode) {
+      logEvent(`MODE: switched to ${mode}`, "event");
+    });
+  }
+
   loadPacks();
   exportBtn.onclick = async () => {
     const prompt = document.getElementById('prompt').value.trim();

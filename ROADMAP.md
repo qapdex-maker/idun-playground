@@ -69,3 +69,12 @@ Status quo, nahe, mittelfristige und Vision-Ziele für das Idun-Projekt
    (kein nackter HTTP-500 mehr); Frontend zeigt „idun login" an. Transiente
    5xx/429 werden im Frontend 2–3× wiederholt. Antwort wird bei `done` voll
    gerendert + ins Bild gescrollt (kein „zeigt nur die Zeit, dann nix").
+   8. **Contoso-Demo-Erweiterung:** 8 Demos im contoso_pack
+   (sustainability_summary, esg_check, web_research, competitor_compare,
+   supply_chain_dashboard, product_passport, net_zero_roadmap,
+   stakeholder_report) — jeweils mit aufgezeichnetem Replay-Trace in
+   demo_traces.py.
+   9. **Live/Demo-Umschalter (Topbar):** geteilter mode-toggle.js/.css in
+   Expo/Playground/Diff. DEMO erzwingt Replays (kein Netzwerk), LIVE
+   versucht den echten Lauf (Router fällt bei abgelaufenem Token auf Demo
+   zurück). Modus persistiert in localStorage.

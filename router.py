@@ -231,6 +231,7 @@ class Handler(BaseHTTPRequestHandler):
                     prompt = (prompt[-1] or {}).get("text", "") if prompt else ""
                 max_tokens = body.get("max_tokens", 4096)
                 demo_key = body.get("demo_key")  # (pack,key) tuple from expo.html
+                force_demo = bool(body.get("force_demo"))  # explicit DEMO mode toggle
 
                 # Stream steps progressively AS THEY COMPLETE. Foundry returns a
                 # complete output[] (no token stream), so each step is emitted as
@@ -241,14 +242,15 @@ class Handler(BaseHTTPRequestHandler):
                 self._cors()
                 self.end_headers()
 
-                # Decide: live run, or a recorded demo replay (no token / explicit).
+                # Decide: live run, or a recorded demo replay (no token / explicit /
+                # requested key). DEMO mode forces a replay and never hits the network.
                 trace = None
                 try:
                     if demo_key:
                         pk = tuple(demo_key) if isinstance(demo_key, list) else None
                         if pk:
                             trace = _demo_trace(pk[0], pk[1])
-                    if trace is None:
+                    if trace is None and not force_demo:
                         # try live; on missing/expired token fall back to demo
                         try:
                             res = _run_complete(prompt, max_tokens)
@@ -257,6 +259,8 @@ class Handler(BaseHTTPRequestHandler):
                                 trace = _demo_trace_for_prompt(prompt)
                             else:
                                 raise
+                    if trace is None and force_demo:
+                        trace = _demo_trace_for_prompt(prompt)
                 except BrokenPipeError:
                     pass  # client closed the connection mid-stream
 

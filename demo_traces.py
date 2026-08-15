@@ -170,6 +170,157 @@ DEMO_TRACES = {
             "Mess-Transparenz — genau dort sollte die nächste ESG-Arbeit ansetzen."
         ),
     },
+    ("contoso", "supply_chain_dashboard"): {
+        "model": "demo-replay",
+        "steps": [
+            {
+                "kind": "reasoning",
+                "text": "Ich strukturiere das Dashboard in Datenquellen, KPIs und Automatisierung.",
+                "tool": "", "query": "", "status": "", "id": "r1",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "supply chain emissions dashboard automated data collection",
+                "status": "completed", "id": "t1", "text": "",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "Contoso supplier ESG data API scope 3",
+                "status": "completed", "id": "t2", "text": "",
+            },
+            {
+                "kind": "reasoning",
+                "text": "Die drei Säulen: Lieferanten-Portal, ERP-Extraktion, öffentliche Scope-3-Daten — alle per API automatisiert.",
+                "tool": "", "query": "", "status": "", "id": "r2",
+            },
+        ],
+        "answer": (
+            "Lieferketten-Dashboard für Contoso (automatisiert):\n\n"
+            "Datenquellen:\n"
+            "1) Lieferanten-Portal: Tier-1/2 liefern monatlich Emissions- und "
+            "Audit-Daten über ein gesichertes API.\n"
+            "2) ERP-Extraktion: Produktions- und Logistikdaten aus SAP/Contoso-ERP "
+            "per Nightly-Job.\n"
+            "3) Öffentliche Scope-3-Daten: Branchen-Benchmarks via API ergänzt.\n\n"
+            "KPIs: Scope-3-Abdeckung (%), Recyclat-Anteil pro SKU, "
+            "Lieferanten-Compliance-Rate, CO2 pro Produkteinheit.\n\n"
+            "Automatisierung: ein Orchestrierungs-Job sammelt täglich, "
+            "validiert und visualisiert; Abweichungen lösen Alerts aus. So wird "
+            "aus manuellem Reporting ein Live-Steuerungsinstrument."
+        ),
+    },
+    ("contoso", "product_passport"): {
+        "model": "demo-replay",
+        "steps": [
+            {
+                "kind": "reasoning",
+                "text": "Ich definiere Datenmodell, Erfassung und Nutzung des Produktpasses.",
+                "tool": "", "query": "", "status": "", "id": "r1",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "digital product passport EU regulation 2027 materials recyclate",
+                "status": "completed", "id": "t1", "text": "",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "Contoso device material passport repairability",
+                "status": "completed", "id": "t2", "text": "",
+            },
+            {
+                "kind": "reasoning",
+                "text": "Der Pass verkettet Material, Recyclat und Reparatur — lesbar per QR/NFC über die Geräte-Lebenszeit.",
+                "tool": "", "query": "", "status": "", "id": "r2",
+            },
+        ],
+        "answer": (
+            "Digitaler Produktpass für Contoso-Geräte:\n\n"
+            "Erfasste Daten:\n"
+            "• Material-Stamm: Metalle, Kunststoffe, kritische Rohstoffe.\n"
+            "• Recyclat-Anteil: % pro Bauteil, zertifiziert.\n"
+            "• Reparatur: Explosionszeichnung, Ersatzteil-Verfügbarkeit, "
+            "Reparierbarkeits-Score.\n"
+            "• Lebenslauf: Herkunft, Wartungen, Rücknahme.\n\n"
+            "Nutzung: QR/NFC am Gerät öffnet den Pass; Werkstätten und "
+            "Recycler lesen Material & Demontage; Kunden sehen Nachhaltigkeits-"
+            "Profi. Erfüllt EU-Produktpass-Pflicht (ab 2027) und schließt den "
+            "Kreislauf-Reportings-Loop."
+        ),
+    },
+    ("contoso", "net_zero_roadmap"): {
+        "model": "demo-replay",
+        "steps": [
+            {
+                "kind": "reasoning",
+                "text": "Ich baue die Roadmap entlang Meilensteinen, Hebeln und Risiken.",
+                "tool": "", "query": "", "status": "", "id": "r1",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "net zero roadmap 2035 scope 3 decarbonization levers",
+                "status": "completed", "id": "t1", "text": "",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "Contoso renewable energy science based targets",
+                "status": "completed", "id": "t2", "text": "",
+            },
+            {
+                "kind": "reasoning",
+                "text": "Die Hebel: EE-Umstellung, Recyclat-Hochskalierung, Logistik-Elektrifizierung; Risiko ist Scope-3-Tiefe.",
+                "tool": "", "query": "", "status": "", "id": "r2",
+            },
+        ],
+        "answer": (
+            "Netto-Null-Roadmap Contoso bis 2035:\n\n"
+            "Meilensteine:\n"
+            "• 2027: 100 % EE im eigenen Betrieb (Scope 1/2).\n"
+            "• 2030: Recyclat-Quote auf 80 %, Takeback-Netz auf 8.000 Punkte.\n"
+            "• 2035: Scope-3-Reduktion 50 % vs. Basisjahr, Rest über zertifizierte "
+            "Senken.\n\n"
+            "Hebel: erneuerbare Energie, Materialkreislauf, elektrifizierte "
+            "Logistik, Supplier-Programme.\n\n"
+            "Risiken: Scope-3-Tiefe (Tier-2/3), Rohstoffpreise, Regulierung. "
+            "Steuerung über das Lieferketten-Dashboard (siehe Demo)."
+        ),
+    },
+    ("contoso", "stakeholder_report"): {
+        "model": "demo-replay",
+        "steps": [
+            {
+                "kind": "reasoning",
+                "text": "Ich orientiere die Gliederung an CSRD-Standards (ESRS).",
+                "tool": "", "query": "", "status": "", "id": "r1",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "CSRD ESRS E1 climate E5 resource use reporting structure",
+                "status": "completed", "id": "t1", "text": "",
+            },
+            {
+                "kind": "tool", "tool": "web_search",
+                "query": "Contoso sustainability stakeholder report double materiality",
+                "status": "completed", "id": "t2", "text": "",
+            },
+            {
+                "kind": "reasoning",
+                "text": "Double-Materiality ist das Rückgrat: Impact- und Financial-Perspektive je ESRS.",
+                "tool": "", "query": "", "status": "", "id": "r2",
+            },
+        ],
+        "answer": (
+            "Gliederung Stakeholder-Nachhaltigkeitsbericht (CSRD/ESRS):\n\n"
+            "1) Vorwort & Strategie (ESRS 2 GOV/SBM)\n"
+            "2) Double-Materiality-Analyse (Impact + Financial)\n"
+            "3) Umwelt (E1 Klima, E5 Ressourcen/Ressourcen-Effizienz, E3 Wasser)\n"
+            "4) Soziales (S1 Arbeitnehmer, S2 Lieferkette)\n"
+            "5) Governance (G1 Verhalten, ESG-Vergütung)\n"
+            "6) Kennzahlen & Methodik (Scope 1/2/3, Recyclat, Takeback)\n"
+            "7) Ausblick & Roadmap\n\n"
+            "Contoso deckt E1/E5 stark ab; Lücke bleibt die Lieferketten-Tiefe "
+            "(S2), die im Bericht als Priorität ausgewiesen werden sollte."
+        ),
+    },
 }
 
 

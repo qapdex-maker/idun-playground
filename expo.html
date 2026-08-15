@@ -6,6 +6,7 @@
 <title>Contoso Expo 2027 — Idun Tool-Agent Showcase</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="mode-toggle.css"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -111,6 +112,7 @@
       </div>
     </div>
     <div class="flex items-center gap-3">
+      <div id="mode-mount" class="mr-1"></div>
       <button class="font-segoe text-[13px] px-3 py-1.5 border border-foundry-border rounded text-foundry-muted hover:border-foundry-purple hover:text-foundry-purple transition-colors" onclick="location.href='/playground.html'">
         <span class="material-symbols-outlined text-[16px] align-middle">chat</span> Playground
       </button>
@@ -195,6 +197,7 @@
 <!-- Reusable TraceViz component (shared with playground.html + diff.html) -->
 <link rel="stylesheet" href="trace-viz.css"/>
 <script src="trace-viz.js"></script>
+<script src="mode-toggle.js"></script>
 
 <script>
   function esc(s) {
@@ -255,12 +258,13 @@
   }
 
   // Stream a prompt with retry on transient 5xx/429 (Foundry is flaky under load).
-  async function streamWithRetry(prompt, demoKey, maxAttempts = 3) {
+  async function streamWithRetry(prompt, demoKey, forceDemo, maxAttempts = 3) {
     let lastErr = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         const body = { messages: [{ role: 'user', content: prompt }] };
         if (demoKey) body.demo_key = demoKey;  // request a recorded replay
+        if (forceDemo) body.force_demo = true;  // DEMO mode: never hit live
         const resp = await fetch('/api/chat/stream', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -347,7 +351,7 @@
     stageAnswer.textContent = "";
     const t0 = performance.now();
     try {
-      const res = await streamWithRetry(d.prompt, demoKey);
+      const res = await streamWithRetry(d.prompt, demoKey, IdunMode.current() === 'demo');
       const ms = Math.round(performance.now() - t0);
       stageAnswer.textContent = res.answer || "(keine Antwort erhalten)";
       stageAnswer.scrollTop = stageAnswer.scrollHeight;
@@ -387,6 +391,16 @@
   };
   // Enter in the dropdown starts the run (explicit action, not on hover/selection)
   sel.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSelected(); });
+
+  // Mount the shared Live/Demo toggle; switching to DEMO forces replays,
+  // switching to LIVE attempts a real run (router falls back to demo if no token).
+  if (window.IdunMode) {
+    IdunMode.mount(document.getElementById('mode-mount'), function (mode) {
+      controlStatus.textContent = mode === 'demo'
+        ? 'Modus: DEMO — aufgezeichnete Replays (kein Live-Token nötig).'
+        : 'Modus: LIVE — versucht echten Agent-Lauf (idun login falls nötig).';
+    });
+  }
 
   loadExpo();
 </script>
