@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;450&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="mode-toggle.css"/>
 <link rel="stylesheet" href="kiosk.css"/>
+<link rel="stylesheet" href="brand.css"/>
 <script>
   tailwind.config = {
     darkMode: "class",
@@ -129,6 +130,7 @@
 <script src="trace-viz.js"></script>
 <script src="mode-toggle.js"></script>
 <script src="kiosk.js"></script>
+<script src="brand.js"></script>
 
 <script>
   const root = document.documentElement;
@@ -259,6 +261,10 @@
   // Mount the Kiosk/Vollbild button (also auto-enters on ?kiosk=1)
   if (window.IdunKiosk) {
     IdunKiosk.mountButton(document.getElementById('kiosk-mount'));
+  }
+  // Mount the booth branding watermark (logo + Contoso Expo 2027)
+  if (window.IdunBrand) {
+    IdunBrand.mount(document.getElementById('kiosk-mount'));
   }
 </script>
 </body>

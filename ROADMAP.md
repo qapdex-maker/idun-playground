@@ -82,3 +82,7 @@ Status quo, nahe, mittelfristige und Vision-Ziele für das Idun-Projekt
    Controls aus und füllt die Bühne rahmenlos (Expo-Fokus). Button in jeder
    Topbar + Auto-Enter via `?kiosk=1` (persistiert). Esc / Exit-Button verlassen.
    Default-Modus ist LIVE (nur bei Token-Fehler greift Demo-Replay).
+11. **Booth-Branding-Overlay:** brand.js/.css pinnt Foundry-Logo +
+   „Contoso Expo 2027"-Wasserzeichen unten rechts (bleibt im Kiosk sichtbar).
+   Demo-Hinweis präzisiert: DEMO = es wird kein Live-Token verwendet
+   (aufgezeichnete Replays).

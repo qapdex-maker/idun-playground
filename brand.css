@@ -1,0 +1,53 @@
+/* Booth branding overlay styles (shared across playground pages) */
+
+.brand-overlay {
+  position: fixed;
+  right: 14px;
+  bottom: 12px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(14, 14, 18, 0.55);
+  border: 1px solid var(--border, #2c2c36);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+  user-select: none;
+}
+.brand-logo {
+  height: 26px;
+  width: 26px;
+  object-fit: contain;
+}
+.brand-text { line-height: 1.15; }
+.brand-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink, #f3f3f5);
+}
+.brand-sub {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted, #9a9aa8);
+}
+
+/* In kiosk mode, give the brand mark a touch more presence (no top bar) */
+.kiosk-mode .brand-overlay {
+  background: rgba(14, 14, 18, 0.68);
+  padding: 10px 16px;
+}
+.kiosk-mode .brand-logo { height: 30px; width: 30px; }
+.kiosk-mode .brand-title { font-size: 13px; }
+
+/* Respect reduced-motion / small screens: keep it compact */
+@media (max-width: 640px) {
+  .brand-overlay { padding: 6px 10px; gap: 7px; }
+  .brand-logo { height: 20px; width: 20px; }
+  .brand-title { font-size: 11px; }
+  .brand-sub { display: none; }
+}
