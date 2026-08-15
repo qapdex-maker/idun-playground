@@ -86,3 +86,7 @@ Status quo, nahe, mittelfristige und Vision-Ziele für das Idun-Projekt
    „Contoso Expo 2027"-Wasserzeichen unten rechts (bleibt im Kiosk sichtbar).
    Demo-Hinweis präzisiert: DEMO = es wird kein Live-Token verwendet
    (aufgezeichnete Replays).
+12. **Demo recordings inventory:** `DEMOS_INVENTORY.md` documents two
+   stand-orphaned clips in `~/repo/own/videos/` (Entra/M365 MCP admin
+   recordings, NOT booth footage) so they are not lost or mistaken for
+   Contoso material. Real booth clips, if needed, come from `/expo.html`.
