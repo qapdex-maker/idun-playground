@@ -11,9 +11,8 @@ Generated: 2026-08-19.
     Termux/aarch64 job removed, ruff pinned to 0.15.10).
   - `pyproject.toml` PEP 517 build-system (merged via PR #8).
   - Wheel built + METADATA verified (Version: 1.0.17).
-  - **PyPI upload: BLOCKED** — all provided tokens returned HTTP 403
-    (account/project permission issue, not a build error). Re-attempt
-    pending a fresh valid PyPI token.
+  - **PyPI upload: LIVE** — https://pypi.org/project/idun-sdk/1.0.17/ (uploaded with
+    `pypi-`-prefixed token; all prior 403s were missing the `pypi-` prefix).
 - **idun-sdk 1.0.16** — PyPI live (was 1.0.15 before). Added --async CLI fix,
   token auto-rotation + prompt-packs docs, CI green (termux job removed).
 

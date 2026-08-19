@@ -9,8 +9,8 @@ Status quo, nah, mittelfristig und Vision für das Idun-Projekt
    steps-Relay, 17-provider registry, 16-bit retro console, MCP server.
    - GitHub `main` (ba78c14): README/CHANGELOG/pyproject updated.
    - CI: grün (pytest 3.8–3.14 + ruff==0.15.10; Termux job removed).
-   - **PyPI:** 1.0.16 live; 1.0.17 built + pushed to GitHub, upload
-     pending valid token (403 on all tried tokens).
+   - **PyPI:** 1.0.17 live (https://pypi.org/project/idun-sdk/1.0.17/);
+     uploaded with `pypi-`-prefixed token.
 2. **Tenant-agnostic by default** — Foundry coords from `~/.idun/config.toml`
    `[defaults]`. No hardcoded tenant in shipped code. Neutral `config.example.toml`.
 3. **idun-playground** — Dark Foundry look, Agent-Trace-Panel,
@@ -26,7 +26,7 @@ Status quo, nah, mittelfristig und Vision für das Idun-Projekt
 
 ## Phase 2 — Nächste Schritte (nah)
 
-1. **PyPI 1.0.17 upload** — pending valid token (currently 403).
+1. **PyPI 1.0.17 upload** — DONE (live).
 2. **Docs** — Microsoft-Learn style: "own resource needed, demo without
    account" explicit (partially done in playground README).
 3. **Trace-Export** — Agent trajectory as JSON/Markdown (offline).
@@ -55,5 +55,5 @@ in playground repo. Public GitHub Pages already covers "demo without account".
 
 ### Blocker (honest)
 - **PR #4249:** org/financial pause (70 EUR RBAC). No code bug.
-- **PyPI 1.0.17:** token/permission issue (403). Build is correct.
+- **PyPI 1.0.17:** LIVE (was 403 due to missing `pypi-` prefix, resolved).
 - **QMFI live test:** same RBAC 403. Offline + demo + external Foundry work.
