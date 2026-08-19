@@ -80,3 +80,13 @@ docker run -p 9001:9001 -e BIND_HOST=0.0.0.0 idun-playground
 ```
 In a container set `BIND_HOST=0.0.0.0` and put a TLS-terminating reverse proxy
 in front — the router itself has no auth layer beyond the Foundry token.
+## Idun Matrix (IDEA α / β)
+
+A Doc × Question pivot built on the idun-sdk. Recorded demo + a tenant-agnostic
+bridge PWA:
+
+- **Demo matrix (no account):** <https://qapdex-maker.github.io/idun-playground/matrix.html>
+- **Matrix Bridge PWA (PocketPal-style):** <https://qapdex-maker.github.io/idun-playground/matrix_app.html>
+  uploads documents (txt/md/pdf) + questions and talks to a local
+  `matrix_server.py` that runs `idun matrix` against *your* Azure AI Foundry resource.
+- **Concept note:** <https://github.com/qapdex-maker/idun-playground/blob/main/DOC_MATRIX_CONCEPT.md>
