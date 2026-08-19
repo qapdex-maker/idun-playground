@@ -21,6 +21,10 @@ Status quo, nah, mittelfristig und Vision für das Idun-Projekt
    static, no backend/account: https://qapdex-maker.github.io/idun-playground/
 6. **Landing page (qapdex-maker.github.io)** — IDUN-40 neon-outrun console
    (reverted to 4bf945b per preference). Live.
+7. **Playground demo skinned neon** — `index.html` (GitHub Pages) uses the same
+   IDUN-40 outrun look (sun/grid/stars/CRT, plastic cartridge, color-coded trace:
+   reasoning=purple, tool=cyan, query=orange, done=green, Material Symbols icons,
+   mobile-readable). Live: https://qapdex-maker.github.io/idun-playground/
 7. **Async + Token rotation + Prompt packs** — `--async` CLI fixed
    (acomplete), auto-rotation in auth.py, 8 contoso prompt packs.
 
