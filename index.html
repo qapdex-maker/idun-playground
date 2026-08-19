@@ -3,156 +3,188 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Idun — Agent Trajectory Playground (Demo)</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <link rel="stylesheet" href="trace-viz.css" />
+  <title>Idun — Neon Agent Console (Demo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #0e0e12;
-      --surface: #16161c;
-      --surface-2: #1c1c24;
-      --border: #2c2c36;
-      --ink: #f3f3f5;
-      --muted: #9a9aa8;
-      --purple: #8b5cf6;
-      --blue: #3b82f6;
+    :root{
+      --bg:#0b021a; --bg2:#1a0533;
+      --pink:#ff2e88; --cyan:#2de2e6; --purple:#b14aed; --orange:#ff6b35;
+      --ink:#f3e9ff; --muted:#a98fd0;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; background: var(--bg); color: var(--ink);
-      font-family: "Inter", system-ui, sans-serif;
-    }
-    header {
-      padding: 28px 32px 22px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    }
-    h1 { font-size: 20px; margin: 0; font-weight: 700; }
-    .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    .badge {
-      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 9999px;
-      border: 1px solid rgba(245, 158, 11, 0.4); color: #fcd34d;
-    }
-    main { max-width: 920px; margin: 0 auto; padding: 28px 20px 60px; }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 22px; }
-    select {
-      background: var(--surface-2); color: var(--ink); border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: inherit;
-    }
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.4);
-    }
-    #trace-viz { max-height: 460px; overflow-y: auto; }
-    .answer {
-      margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border);
-      white-space: pre-wrap; line-height: 1.6; font-size: 14px; color: var(--ink);
-    }
-    /* Smooth step reveal: each TraceViz row fades + slides in as it appears. */
-    @keyframes tvFadeInUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .tv-row {
-      animation: tvFadeInUp 0.45s ease-out both;
-    }
-    #answer {
-      animation: tvFadeInUp 0.5s ease-out both;
-    }
-    .answer-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-    .meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
-    .meta b { color: var(--purple); font-weight: 600; }
-    footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px; border-top: 1px solid var(--border); }
-    a { color: var(--blue); text-decoration: none; }
-    .err { color: #fca5a5; padding: 16px; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{background:var(--bg); color:var(--ink); font-family:Inter,system-ui,sans-serif;
+      overflow-x:hidden; min-height:100vh; position:relative;}
+
+    .sky{position:fixed; inset:0; z-index:0; overflow:hidden;
+      background:linear-gradient(180deg,#05010f 0%, #1a0533 45%, #3a0a52 70%, #ff2e88 130%);}
+    .sun{position:absolute; left:50%; top:26%; transform:translate(-50%,-50%);
+      width:300px; height:300px; border-radius:50%;
+      background:linear-gradient(180deg,#ffd36e 0%, #ff6b35 45%, #ff2e88 100%);
+      filter:blur(2px); box-shadow:0 0 120px 40px rgba(255,46,136,.45);
+      -webkit-mask:repeating-linear-gradient(180deg,#000 0 14px, transparent 14px 22px);
+              mask:repeating-linear-gradient(180deg,#000 0 14px, transparent 14px 22px);
+      animation:sunPulse 6s ease-in-out infinite;}
+    @keyframes sunPulse{0%,100%{opacity:.85;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-52%) scale(1.04)}}
+    .grid{position:absolute; left:-50%; right:-50%; bottom:0; height:50vh;
+      background-image:
+        linear-gradient(rgba(45,226,230,.5) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255,46,136,.5) 2px, transparent 2px);
+      background-size:60px 60px; transform:perspective(380px) rotateX(72deg);
+      transform-origin:bottom center; animation:grid 2.2s linear infinite; opacity:.45;}
+    @keyframes grid{0%{background-position:0 0}100%{background-position:0 60px}}
+    .scan{position:fixed; inset:0; z-index:5; pointer-events:none;
+      background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px); mix-blend-mode:overlay;
+      animation:flick 7s ease-in-out infinite;}
+    @keyframes flick{0%,100%{opacity:.85}48%{opacity:1}50%{opacity:.7}52%{opacity:.95}}
+    .stars{position:fixed; inset:0; z-index:1; pointer-events:none;}
+
+    .wrap{position:relative; z-index:10; max-width:920px; margin:0 auto; padding:40px 20px 70px;}
+
+    .badge{display:inline-flex; align-items:center; gap:8px; font-family:"JetBrains Mono",monospace;
+      font-size:12px; color:var(--cyan); border:1px solid rgba(45,226,230,.4); padding:6px 14px;
+      border-radius:999px; letter-spacing:1px; box-shadow:0 0 18px rgba(45,226,230,.25);
+      background:rgba(13,2,26,.5); animation:floaty 4s ease-in-out infinite;}
+    .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:blink 1.4s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+    h1{font-family:Orbitron,monospace; font-weight:900; font-size:clamp(30px,6vw,56px);
+      margin:20px 0 2px; line-height:.95; letter-spacing:2px;
+      background:linear-gradient(180deg,#fff 0%, var(--cyan) 40%, var(--pink) 100%);
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 24px rgba(255,46,136,.55)); animation:h1glow 5s ease-in-out infinite;}
+    @keyframes h1glow{0%,100%{filter:drop-shadow(0 0 18px rgba(255,46,136,.45))}50%{filter:drop-shadow(0 0 38px rgba(45,226,230,.6))}}
+    .sub{color:#d9c7f5; font-size:14px; margin-top:10px; max-width:620px; line-height:1.6}
+
+    .controls{display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:26px 0 18px;}
+    label.lbl{font-size:12px; font-family:"JetBrains Mono",monospace; color:var(--cyan); letter-spacing:1px}
+    select{background:#160a26; color:var(--ink); border:1px solid rgba(45,226,230,.35);
+      border-radius:10px; padding:10px 14px; font-size:14px; font-family:"JetBrains Mono",monospace; min-width:280px}
+
+    .device{position:relative; margin:0; border-radius:26px; padding:16px 16px 14px;
+      background:linear-gradient(165deg,#241036 0%, #140821 60%, #0a0414 100%);
+      box-shadow:0 0 0 2px rgba(177,74,237,.4), 0 30px 80px rgba(255,46,136,.22),
+                 inset 0 1px 0 rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);}
+    .dev-top{display:flex; align-items:center; gap:12px; padding:4px 6px 12px; flex-wrap:wrap}
+    .led{width:11px;height:11px;border-radius:50%; background:var(--cyan);
+      box-shadow:0 0 12px var(--cyan); animation:heart 1.8s ease-in-out infinite}
+    @keyframes heart{0%,100%{opacity:.55; transform:scale(.9)}50%{opacity:1; transform:scale(1.15)}}
+    .brand{font-family:Orbitron,monospace; font-weight:900; font-size:18px; color:var(--pink);
+      letter-spacing:3px; text-shadow:0 0 14px rgba(255,46,136,.6)}
+    .slot{margin-left:auto; display:flex; align-items:center; gap:8px;
+      font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--muted);
+      border:1px solid rgba(45,226,230,.3); border-radius:8px; padding:5px 10px;
+      background:rgba(45,226,230,.06)}
+    .cart{position:relative; width:30px; height:20px; border-radius:3px 3px 2px 2px;
+      background:linear-gradient(180deg,#3a3a44 0%, #25252e 55%, #16161c 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.18), inset 0 -3px 6px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.5);
+      border:1px solid #0c0c10;}
+    .cart::before{content:""; position:absolute; left:3px; right:3px; top:3px; height:7px; border-radius:2px;
+      background:repeating-linear-gradient(90deg,#42424d 0 2px, #2c2c34 2px 4px); box-shadow:inset 0 1px 0 rgba(255,255,255,.15);}
+    .cart::after{content:""; position:absolute; left:6px; right:6px; bottom:-3px; height:3px;
+      background:linear-gradient(90deg,#6b6b78,#3a3a44,#6b6b78); border-radius:0 0 2px 2px;}
+    .cart .lbl{position:absolute; left:1px; right:1px; top:11px; text-align:center;
+      font-family:"JetBrains Mono",monospace; font-size:5.5px; color:#cfcfe0; line-height:1;}
+
+    .screen{position:relative; border-radius:14px; overflow:hidden; background:#05010f;
+      border:2px solid #000; box-shadow:inset 0 0 60px rgba(45,226,230,.12), inset 0 0 18px rgba(0,0,0,.9),
+                 0 0 0 6px #0a0414, 0 0 0 8px rgba(177,74,237,.35); padding:18px 20px;}
+    #trace-viz{max-height:420px; overflow-y:auto; font-family:"JetBrains Mono",monospace;
+      font-size:13.5px; line-height:1.7; color:var(--ink); position:relative;}
+    .crt{position:absolute; inset:0; pointer-events:none; z-index:3;
+      background:repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px); mix-blend-mode:multiply;}
+    .crt::after{content:""; position:absolute; inset:0; box-shadow:inset 0 0 90px rgba(0,0,0,.7); border-radius:14px;}
+
+    .tv-row{margin:2px 0; animation:tvFadeInUp .45s ease-out both}
+    .tv-think{color:var(--purple)} .tv-tool{color:var(--cyan)} .tv-q{color:var(--orange)} .tv-ok{color:#7ef0c0}
+    @keyframes tvFadeInUp{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
+    .answer{margin-top:16px; padding-top:14px; border-top:1px dashed rgba(45,226,230,.3);
+      font-family:"JetBrains Mono",monospace; font-size:13.5px; line-height:1.7; color:var(--ink);
+      white-space:pre-wrap; animation:tvFadeInUp .5s ease-out both}
+    .answer-label{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--cyan);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px}
+    .meta{font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--muted); margin-bottom:12px}
+    .meta b{color:var(--purple); font-weight:700}
+    .err{color:#ff9a9a; padding:16px; font-family:"JetBrains Mono",monospace}
+
+    footer{margin-top:40px; text-align:center; color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:12px}
+    a.il{color:var(--cyan); text-decoration:none} a.il:hover{text-decoration:underline}
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>Idun — Agent Trajectory Playground</h1>
-      <div class="sub">Recorded demo trajectories of the Idun agent on Azure AI Foundry. No account needed.</div>
-    </div>
-    <span class="badge">DEMO MODE · recorded traces</span>
-  </header>
+  <div class="sky"><div class="sun"></div><div class="grid"></div></div>
+  <div class="stars" id="stars"></div>
+  <div class="scan"></div>
 
-  <main>
+  <div class="wrap">
+    <div class="badge"><span class="dot"></span> IDUN · DEMO CONSOLE</div>
+    <h1>IDUN-40</h1>
+    <div class="sub">Recorded agent trajectories of the Idun agent on Azure AI Foundry — rendered live on the neon console. Pick a trace, watch it reason and call tools. No account needed.</div>
+
+    <div class="device">
+      <div class="dev-top">
+        <span class="led"></span>
+        <span class="brand">IDUN-40</span>
+        <span class="slot"><span class="cart"><span class="lbl">IDUN</span></span> CARTRIDGE · idun-sdk v1.0.17</span>
+      </div>
+      <div class="screen">
+        <div id="trace-viz"></div>
+        <div class="crt"></div>
+      </div>
+    </div>
+
     <div class="controls">
-      <label for="trace" style="font-size:13px;color:var(--muted);">Demo trace:</label>
+      <label class="lbl" for="trace">DEMO TRACE:</label>
       <select id="trace"></select>
     </div>
 
-    <div class="card">
-      <div class="meta" id="meta"></div>
-      <div id="trace-viz"></div>
-      <div class="answer" id="answer" style="display:none;">
-        <div class="answer-label">Answer</div>
-        <div id="answer-text"></div>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    Idun is tenant-agnostic — for live calls, self-host with <a href="https://github.com/qapdex-maker/idun-playground">idun-playground</a>
-    and supply your own Azure AI Foundry resource. These traces are recorded replays, not live output.
-  </footer>
+    <footer>Idun is tenant-agnostic — for live calls, self-host with <a class="il" href="https://github.com/qapdex-maker/idun-playground">idun-playground</a> and supply your own Azure AI Foundry resource. These traces are recorded replays, not live output.</footer>
+  </div>
 
   <script src="trace-viz.js"></script>
   <script>
-    (function () {
-      "use strict";
-      var sel = document.getElementById("trace");
-      var meta = document.getElementById("meta");
-      var viz = document.getElementById("trace-viz");
-      var answerBox = document.getElementById("answer");
-      var answerText = document.getElementById("answer-text");
-      var traces = {};
+    (function(){
+      var stars=document.getElementById('stars'); var h='';
+      for(var i=0;i<90;i++){var x=Math.random()*100,y=Math.random()*100,r=Math.random()*1.6+.4,a=Math.random()*.7+.3;
+        h+='<span style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+r+'px;height:'+r+'px;border-radius:50%;background:#fff;opacity:'+a+';box-shadow:0 0 6px #fff"></span>';}
+      stars.innerHTML=h;
 
-      var revealTimer = null;
-      function render(key) {
-        var t = traces[key];
-        if (!t) return;
-        if (revealTimer) { clearInterval(revealTimer); revealTimer = null; }
-        var steps = t.steps || [];
-        var i = 0;
-        meta.innerHTML = "Trace <b>" + key + "</b> · model <b>" +
-          (t.model || "demo-replay") + "</b> · " + steps.length + " steps";
-        answerBox.style.display = "none";
-        viz.innerHTML = "";
-        // Reveal steps one-by-one so the trajectory "builds up" like a live run.
-        revealTimer = setInterval(function () {
-          if (i >= steps.length) {
-            clearInterval(revealTimer); revealTimer = null;
-            if (t.answer) {
-              answerText.textContent = t.answer;
-              answerBox.style.display = "block";
-            }
-            return;
-          }
-          TraceViz.render(viz, steps.slice(0, i + 1));
-          viz.scrollTop = viz.scrollHeight;
-          i += 1;
+      var sel=document.getElementById('trace');
+      var viz=document.getElementById('trace-viz');
+      var traces={};
+      var revealTimer=null;
+
+      function render(key){
+        var t=traces[key]; if(!t) return;
+        if(revealTimer){clearInterval(revealTimer); revealTimer=null;}
+        var steps=t.steps||[]; var i=0;
+        viz.innerHTML='<div class="meta">Trace <b>'+key+'</b> · model <b>'+(t.model||'demo-replay')+'</b> · '+steps.length+' steps</div>';
+        revealTimer=setInterval(function(){
+          if(i>=steps.length){ clearInterval(revealTimer); revealTimer=null;
+            if(t.answer){ var a=document.createElement('div'); a.className='answer';
+              a.innerHTML='<div class="answer-label">Answer</div>'+t.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+              viz.appendChild(a); viz.scrollTop=viz.scrollHeight; }
+            return; }
+          TraceViz.render(viz, steps.slice(0, i+1));
+          viz.scrollTop=viz.scrollHeight; i+=1;
         }, 650);
       }
 
-      fetch("traces.json")
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          traces = data;
-          var keys = Object.keys(data);
-          if (!keys.length) { viz.innerHTML = '<div class="err">No demo traces found.</div>'; return; }
+      fetch('traces.json')
+        .then(function(r){return r.json();})
+        .then(function(data){
+          traces=data; var keys=Object.keys(data);
+          if(!keys.length){ viz.innerHTML='<div class="err">No demo traces found.</div>'; return; }
           keys.sort();
-          keys.forEach(function (k) {
-            var opt = document.createElement("option");
-            opt.value = k; opt.textContent = k;
-            sel.appendChild(opt);
-          });
-          sel.addEventListener("change", function () { render(sel.value); });
+          keys.forEach(function(k){ var o=document.createElement('option'); o.value=k; o.textContent=k; sel.appendChild(o); });
+          sel.addEventListener('change', function(){ render(sel.value); });
           render(keys[0]);
         })
-        .catch(function (e) {
-          viz.innerHTML = '<div class="err">Failed to load traces.json: ' + e.message + "</div>";
-        });
+        .catch(function(e){ viz.innerHTML='<div class="err">Failed to load traces.json: '+e.message+'</div>'; });
     })();
   </script>
 </body>
