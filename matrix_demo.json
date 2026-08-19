@@ -1,0 +1,65 @@
+{
+  "questions": [
+    "What is the recyclate quota?",
+    "Is takeback / return service offered?",
+    "Does it disclose the Tier-2/3 supplier chain?"
+  ],
+  "documents": [
+    "contoso_sustainability.txt",
+    "competitor_a.txt",
+    "policy_std.txt"
+  ],
+  "cells": {
+    "What is the recyclate quota?": {
+      "contoso_sustainability.txt": {
+        "answer": "30% of packaging is recyclate.",
+        "citation": "Section 4.2 Packaging",
+        "status": "GREEN"
+      },
+      "competitor_a.txt": {
+        "answer": "45% recycled content target by 2030.",
+        "citation": "Page 12 Commitments",
+        "status": "GREEN"
+      },
+      "policy_std.txt": {
+        "answer": "Minimum 25% recyclate for members.",
+        "citation": "Art. 3.1",
+        "status": "GREEN"
+      }
+    },
+    "Is takeback / return service offered?": {
+      "contoso_sustainability.txt": {
+        "answer": "Yes, free takeback at 1200 drop points.",
+        "citation": "Section 5 Reverse Logistics",
+        "status": "GREEN"
+      },
+      "competitor_a.txt": {
+        "answer": "NO INFO",
+        "citation": "",
+        "status": "GRAY"
+      },
+      "policy_std.txt": {
+        "answer": "Takeback recommended but not mandatory.",
+        "citation": "Art. 5.2",
+        "status": "GREEN"
+      }
+    },
+    "Does it disclose the Tier-2/3 supplier chain?": {
+      "contoso_sustainability.txt": {
+        "answer": "CONTRADICTION: claims full transparency but lists only Tier-1.",
+        "citation": "Section 7 Suppliers",
+        "status": "RED"
+      },
+      "competitor_a.txt": {
+        "answer": "Yes, published Tier-2 list (non-production).",
+        "citation": "Page 18 Supply Chain",
+        "status": "GREEN"
+      },
+      "policy_std.txt": {
+        "answer": "Tier-1 disclosure required; Tier-2 voluntary.",
+        "citation": "Art. 7",
+        "status": "GREEN"
+      }
+    }
+  }
+}
