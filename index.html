@@ -6,6 +6,7 @@
   <title>Idun — Neon Agent Console (Demo)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="trace-viz.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root{
@@ -99,8 +100,6 @@
       background:repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px); mix-blend-mode:multiply;}
     .crt::after{content:""; position:absolute; inset:0; box-shadow:inset 0 0 90px rgba(0,0,0,.7); border-radius:14px;}
 
-    .tv-row{margin:2px 0; animation:tvFadeInUp .45s ease-out both}
-    .tv-think{color:var(--purple)} .tv-tool{color:var(--cyan)} .tv-q{color:var(--orange)} .tv-ok{color:#7ef0c0}
     @keyframes tvFadeInUp{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
     .answer{margin-top:16px; padding-top:14px; border-top:1px dashed rgba(45,226,230,.3);
       font-family:"JetBrains Mono",monospace; font-size:13.5px; line-height:1.7; color:var(--ink);
@@ -113,6 +112,31 @@
 
     footer{margin-top:40px; text-align:center; color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:12px}
     a.il{color:var(--cyan); text-decoration:none} a.il:hover{text-decoration:underline}
+
+    /* ===== Neon color-coding for TraceViz (clear type separation) ===== */
+    .tv-row{margin:8px 0; animation:tvFadeInUp .45s ease-out both}
+    .tv-cap-card{background:rgba(13,2,26,.55); border:1px solid rgba(177,74,237,.35);
+      border-radius:10px; box-shadow:0 0 0 1px rgba(45,226,230,.06);}
+    /* Reasoning / Plan -> PURPLE */
+    .tv-purple-bg{background:rgba(177,74,237,.16); box-shadow:0 0 14px rgba(177,74,237,.35);}
+    .tv-purple-bg .tv-icon{color:#c98bff; text-shadow:0 0 8px rgba(177,74,237,.8);}
+    .tv-label{color:#e9d8ff; font-family:"JetBrains Mono",monospace; letter-spacing:.03em}
+    .tv-text{color:#d9c7f5; font-family:"JetBrains Mono",monospace;}
+    /* Tool box -> CYAN with glow + border */
+    .tv-blue-bg{background:rgba(45,226,230,.14); box-shadow:0 0 16px rgba(45,226,230,.4);}
+    .tv-blue-bg .tv-icon{color:var(--cyan); text-shadow:0 0 8px rgba(45,226,230,.9);}
+    /* Query (the actual search string) -> ORANGE, highlighted */
+    .tv-query{color:#ffb27a; background:rgba(255,107,53,.10); border-left:3px solid var(--orange);
+      padding:4px 8px; border-radius:4px; font-family:"JetBrains Mono",monospace;
+      white-space:pre-wrap; overflow:visible; text-shadow:0 0 6px rgba(255,107,53,.4);}
+    /* Status chips */
+    .tv-green{color:#7ef0c0; background:rgba(74,222,128,.14); border:1px solid rgba(74,222,128,.4);
+      text-shadow:0 0 6px rgba(74,222,128,.5);}
+    .tv-blue{color:var(--cyan); background:rgba(45,226,230,.12); border:1px solid rgba(45,226,230,.35);}
+    .tv-red{color:#ff7ab0; background:rgba(255,46,136,.14); border:1px solid rgba(255,46,136,.4);}
+    .tv-muted{color:var(--muted); background:rgba(169,143,208,.12);}
+    .tv-chip{text-shadow:0 0 6px currentColor}
+    .tv-spinner{border-color:var(--cyan); border-right-color:transparent}
   </style>
 </head>
 <body>
