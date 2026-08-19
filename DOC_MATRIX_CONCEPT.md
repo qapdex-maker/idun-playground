@@ -30,7 +30,7 @@ This is the "revolutionary" part vs. a normal chatbot: not ONE answer, but a
 2. **β — PocketPal-Idun Bridge**: a mobile PWA that runs a small local model for
    quick questions and delegates complex matrix jobs to Idun via the SDK.
 3. **γ — Clause Drift**: compare Doc A vs a standard / Doc B, flag deviations as
-   a matrix. Good first feature once α-core exists.
+   a matrix. **BUILT** in SDK 1.0.21 (`idun.diff_docs` / `idun matrix diff-docs`).
 
 ## UI direction (neon, consistent with landing page + playground)
 - Reuse the IDUN-40 outrun look: sun/grid/stars/CRT, plastic cartridge.
