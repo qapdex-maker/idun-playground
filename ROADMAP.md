@@ -48,7 +48,10 @@ Status quo, nah, mittelfristig und Vision für das Idun-Projekt
 
 1. **Idun as backend** in Hermes WebUI preview.
 2. **Reusable tool-agent visualization** component for other Foundry agents.
-3. **Mobile app (PocketPal-hybrid, doc-matrix)** — noted as future direction.
+3. **Mobile app (PocketPal-hybrid, doc-matrix)** — IDEA α + β BUILT:
+   - α: `idun/retrieve.py` + `idun/matrix.py` + `idun matrix` CLI (Doc × Question pivot) — SDK 1.0.19.
+   - β: `matrix_app.html` (neon PWA) + `matrix_server.py` (local bridge, tenant-agnostic) in idun-playground.
+   - Live demo: https://qapdex-maker.github.io/idun-playground/matrix.html (recorded) and /matrix_app.html (bridge UI).
 
 ## Showcase (Contoso Expo)
 
