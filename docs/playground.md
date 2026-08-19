@@ -1,8 +1,8 @@
 ---
 title: Router Playground
 description: Local multi-backend LLM router and Studio-style playground for the NatureLM-Idun-5-MoE agent — Contoso prompt lab, API reference, auth guide, and live telemetry.
-author: QMFI-Research
-ms.author: AlexanderKleine
+author: Idun SDK
+ms.author: idun-sdk
 ms.date: 2026-07-26
 ms.topic: how-to
 ---
@@ -31,7 +31,7 @@ and the FAQ.
 ## What is the Router Playground
 
 The playground serves four Studio-style pages that all talk to one local
-router process (`server.py`, listening on `127.0.0.1:9001`):
+router process (`router.py`, listening on `127.0.0.1:9001`):
 
 | Page | File | Purpose |
 | --- | --- | --- |
@@ -53,7 +53,7 @@ so the browser never sees a token and suffers no CORS exposure.
 | Layer | Component | Notes |
 | --- | --- | --- |
 | UI | `*.html` (Tailwind, no build step) | Studio/paper look; Contoso (Segoe UI) + Foundry (Playfair Display) type |
-| Router | `server.py` (ThreadingHTTPServer) | Selects backend by `model` prefix; 600 s timeout; structured 403 body |
+| Router | `router.py` (ThreadingHTTPServer) | Selects backend by `model` prefix; 600 s timeout; structured 403 body |
 | Identity | Microsoft Entra ID | Device-code bearer token; scope `https://ai.azure.com/.default` |
 | Backend A | Azure AI Foundry | `foundry:NatureLM-Idun-5-MoE` → agent via OpenAI responses protocol |
 | Backend B | Azure OpenAI | `aoai:gpt-4o` (requires `AZURE_OPENAI_API_KEY`) |
@@ -98,7 +98,7 @@ Set the credentials, then start the router (it reads `FOUNDRY_TOKEN`,
 export FOUNDRY_TOKEN="$(cat ~/foundry_token.txt)"
 export FOUNDRY_TIMEOUT=600
 cd workspace/webapp
-python3 server.py
+python3 run_router.py
 # Serving on http://127.0.0.1:9001/
 ```
 
