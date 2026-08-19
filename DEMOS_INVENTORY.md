@@ -10,7 +10,7 @@ they are not lost or mistaken for booth material.
 
 | File | Duration | Resolution | Size | Content (verified via frame extract) |
 |------|----------|------------|------|--------------------------------------|
-| `Screen_Recording_20260815_082829_Edge.mp4` | 91.8s | 1080×2400 (portrait) | 19 MB | Microsoft Entra Admin Center — Connect-Sync → Security Copilot-Agents, QMFI-Research tenant overview (Alexander Kleine, Global Admin + 98 roles, 1 user, 6 apps) |
+| `Screen_Recording_20260815_082829_Edge.mp4` | 91.8s | 1080×2400 (portrait) | 19 MB | Microsoft Entra Admin Center — Connect-Sync → Security Copilot-Agents, tenant overview (admin role + app registrations) |
 | `Screen_Recording_20260815_082951_Edge.mp4` | 65.2s | 1080×2400 (portrait) | 24 MB | Microsoft Entra Admin Center — App Registrations → MS 365 MCP Server → API Permissions (Microsoft Graph delegated perms: User.*, Sites.*, Tasks.*, MailboxSettings.*) |
 
 ## Notes
