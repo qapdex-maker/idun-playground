@@ -1,4 +1,0 @@
-[run_router] IDUN_BASE=None
-[run_router] IDUN_PROJECT=None
-[run_router] token present=False
-Idun router on http://127.0.0.1:9700  (Ctrl+C to stop)
