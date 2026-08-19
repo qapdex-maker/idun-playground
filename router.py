@@ -29,7 +29,7 @@ from idun import IdunClient, load_token, diff_traces, list_packs, load_pack, get
 from demo_traces import get_demo, first_demo_key, GENERIC_DEMO, DEMO_TRACES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PORT = 9001
+PORT = int(os.environ.get("PORT", "9001"))
 
 
 def _demo_trace(pack, key):
@@ -106,9 +106,7 @@ def _client():
         except Exception:
             pass
     if not tok:
-        raise RuntimeError(
-            "No valid FOUNDRY_TOKEN. Run `idun login` (or export FOUNDRY_TOKEN) to refresh."
-        )
+        return None
     return IdunClient(token=tok)
 
 
@@ -126,7 +124,15 @@ def _result_to_payload(res):
 
 
 def _run_complete(prompt, max_tokens=4096):
-    return _client().complete(prompt, max_output_tokens=max_tokens)
+    """Run a live completion; fall back to a recorded demo trace when no
+    valid Foundry token/resource is configured (tenant-agnostic demo mode)."""
+    client = _client()
+    if client is None:
+        trace = _demo_trace_for_prompt(prompt)
+        if trace:
+            return _trace_to_result(trace)
+        return None
+    return client.complete(prompt, max_output_tokens=max_tokens)
 
 
 class Handler(BaseHTTPRequestHandler):
