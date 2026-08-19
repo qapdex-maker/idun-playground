@@ -133,7 +133,7 @@ Does it disclose the Tier-2/3 supplier chain?</textarea>
       Array.prototype.forEach.call(e.target.files,function(f){
         names.push(f.name);
         if(f.name.endsWith('.pdf')){
-          var r=new FileReader(); r.onload=function(){docs[f.name]=btoa(r.result); docs[f.name+'__pdf']=true;}; r.readAsBinaryString(f);
+          var r=new FileReader(); r.onload=function(){docs[f.name]=btoa(r.result); docs[f.name+'__b64']=true;}; r.readAsBinaryString(f);
         } else {
           var r=new FileReader(); r.onload=function(){docs[f.name]=r.result;}; r.readAsText(f);
         }

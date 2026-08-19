@@ -17,7 +17,7 @@ Endpoints:
   POST /matrix                -> {docs:{name:text}, questions:[...], foundry:{endpoint,token,project,agent}}
                                  returns {questions, documents, cells:{q:{doc:cell}}}
 """
-import json, os, tempfile, sys
+import json, os, tempfile, sys, base64, shutil
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -74,7 +74,28 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:
             self._send(400, json.dumps({"error": "bad json: " + str(e)}))
             return
-        docs = req.get("docs", {})
+        docs_raw = req.get("docs", {})
+        # decode any base64-encoded uploads (browser sends pdf as base64)
+        docs = {}
+        tmp_files = []
+        for name, content in docs_raw.items():
+            if name.endswith("__b64"):
+                continue
+            if isinstance(content, str) and docs_raw.get(name + "__b64"):
+                # write temp file with original extension
+                ext = os.path.splitext(name)[1] or ".pdf"
+                fd, path = tempfile.mkstemp(suffix=ext)
+                with os.fdopen(fd, "wb") as f:
+                    f.write(base64.b64decode(content))
+                tmp_files.append(path)
+                # extract text via ingest
+                try:
+                    from idun.ingest import extract_text
+                    docs[name] = extract_text(path)
+                except Exception as e:
+                    docs[name] = "[extract failed: %s]" % e
+            else:
+                docs[name] = content
         questions = req.get("questions", [])
         foundry = req.get("foundry", {})
         if not build_matrix:
@@ -94,6 +115,10 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:
             self._send(500, json.dumps({"error": str(e)}))
             return
+        finally:
+            for tf in tmp_files:
+                try: shutil.rmtree(os.path.dirname(tf), ignore_errors=True)
+                except Exception: pass
         self._send(200, json.dumps({
             "questions": questions,
             "documents": list(docs.keys()),
