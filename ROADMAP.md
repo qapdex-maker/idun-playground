@@ -51,6 +51,7 @@ Status quo, nah, mittelfristig und Vision für das Idun-Projekt
 3. **Mobile app (PocketPal-hybrid, doc-matrix)** — IDEA α + β BUILT:
    - α: `idun/retrieve.py` + `idun/matrix.py` + `idun matrix` CLI (Doc × Question pivot) — SDK 1.0.19.
    - β: `matrix_app.html` (neon PWA) + `matrix_server.py` (local bridge, tenant-agnostic) in idun-playground.
+   - γ: `idun.diff_docs` / `idun matrix diff-docs` — Clause Drift compare (SDK 1.0.21).
    - Live demo: https://qapdex-maker.github.io/idun-playground/matrix.html (recorded) and /matrix_app.html (bridge UI).
 
 ## Showcase (Contoso Expo)
