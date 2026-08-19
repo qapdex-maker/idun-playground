@@ -30,11 +30,43 @@ from demo_traces import get_demo, first_demo_key, GENERIC_DEMO, DEMO_TRACES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get("PORT", "9001"))
+TOKEN_FILE = os.path.expanduser("~/foundry_token.txt")
 
 
 def _demo_trace(pack, key):
     """Return a recorded demo trace dict for (pack, key), or None."""
     return get_demo(pack, key)
+
+
+def _health():
+    """Report backend config status so the UI can show LIVE vs DEMO mode.
+
+    Tenant-agnostic: `configured` means the operator supplied their OWN
+    Foundry resource (env or ~/.idun/config.toml). With no resource and no
+    token the router serves recorded demo traces (demo mode), which needs no
+    account at all.
+    """
+    try:
+        from idun.client import foundry_base, foundry_project
+        base = (foundry_base() or "").strip()
+        project = (foundry_project() or "").strip()
+    except Exception:
+        base = project = ""
+    has_token = bool(os.environ.get("FOUNDRY_TOKEN"))
+    if not has_token and os.path.exists(TOKEN_FILE):
+        try:
+            has_token = bool(json.load(open(TOKEN_FILE)).get("access_token"))
+        except Exception:
+            has_token = False
+    configured = bool(base) and bool(project)
+    live = configured and has_token
+    return {
+        "configured": configured,
+        "has_token": has_token,
+        "live": live,
+        "demo": not live,
+        "mode": "live" if live else "demo",
+    }
 
 
 def _demo_trace_for_prompt(prompt):
@@ -214,6 +246,10 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self._host_ok():
             self.send_error(403, "Host not allowed")
+            return
+        route = urlparse(self.path).path
+        if route == "/api/health":
+            self._json(_health())
             return
         self._static(urlparse(self.path).path)
 

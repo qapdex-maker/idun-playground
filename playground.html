@@ -197,6 +197,7 @@
 
       <div class="bg-foundry-surface border border-foundry-border rounded-lg paper-shadow p-5">
         <div class="chip text-foundry-muted mb-3">BACKEND STATUS</div>
+        <div class="mb-3"><span id="mode-badge" class="chip text-amber-300 border border-amber-300/40">DEMO MODE</span></div>
         <div id="backend-list" class="space-y-2"></div>
         <div class="mt-4 pt-3 border-t border-foundry-border flex flex-col gap-1">
           <div class="flex justify-between text-[12px]"><span class="text-foundry-muted">ROUTER UPTIME</span><span id="router-uptime" class="font-mono font-semibold text-foundry-purple">0:00:00</span></div>
@@ -386,6 +387,31 @@
   function showRetry(){ retryBtn.classList.remove('hidden'); }
   function hideRetry(){ retryBtn.classList.add('hidden'); }
   retryBtn.addEventListener('click', () => { hideRetry(); sendPrompt(); });
+
+  // Poll /api/health once on load and show a LIVE / DEMO badge so visitors
+  // without an account immediately understand the playground is in demo mode
+  // (recorded traces, no account needed) vs. live (operator's own resource).
+  function updateModeBadge() {
+    fetch('/api/health').then(r => r.json()).then(h => {
+      const live = h.mode === 'live';
+      const badge = document.getElementById('mode-badge');
+      if (badge) {
+        badge.textContent = live ? 'LIVE' : 'DEMO MODE';
+        badge.className = 'chip ' + (live
+          ? 'text-emerald-400 border border-emerald-400/40'
+          : 'text-amber-300 border border-amber-300/40');
+        badge.title = live
+          ? 'Connected to the operator\'s own Azure AI Foundry resource.'
+          : 'No account needed — showing recorded demo traces. Set your own Foundry resource for live calls.';
+      }
+      const st = document.getElementById('status');
+      if (st && !st.dataset.touched) {
+        st.textContent = live ? 'Live: eigene Foundry-Ressource verbunden.'
+                              : 'Demo-Modus: aufgezeichnete Traces (kein Account nötig).';
+      }
+    }).catch(() => {});
+  }
+  updateModeBadge();
 
   // Render Idun's agent trajectory via the reusable TraceViz component (Phase 4.2).
   // The inline implementation was extracted to trace-viz.js so playground.html,
