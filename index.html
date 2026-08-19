@@ -91,11 +91,12 @@
     .cart .lbl{position:absolute; left:1px; right:1px; top:11px; text-align:center;
       font-family:"JetBrains Mono",monospace; font-size:5.5px; color:#cfcfe0; line-height:1;}
 
-    .screen{position:relative; border-radius:14px; overflow:hidden; background:#05010f;
+    .screen{position:relative; border-radius:14px; background:#05010f;
       border:2px solid #000; box-shadow:inset 0 0 60px rgba(45,226,230,.12), inset 0 0 18px rgba(0,0,0,.9),
-                 0 0 0 6px #0a0414, 0 0 0 8px rgba(177,74,237,.35); padding:18px 20px;}
-    #trace-viz{max-height:420px; overflow-y:auto; font-family:"JetBrains Mono",monospace;
-      font-size:13.5px; line-height:1.7; color:var(--ink); position:relative;}
+                 0 0 0 6px #0a0414, 0 0 0 8px rgba(177,74,237,.35); padding:18px 16px;}
+    #trace-viz{max-height:460px; overflow-y:auto; overflow-x:hidden; font-family:"JetBrains Mono",monospace;
+      font-size:13px; line-height:1.65; color:var(--ink); position:relative;
+      padding:2px 4px; word-break:break-word; overflow-wrap:anywhere;}
     .crt{position:absolute; inset:0; pointer-events:none; z-index:3;
       background:repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px); mix-blend-mode:multiply;}
     .crt::after{content:""; position:absolute; inset:0; box-shadow:inset 0 0 90px rgba(0,0,0,.7); border-radius:14px;}
@@ -120,8 +121,11 @@
     /* Reasoning / Plan -> PURPLE */
     .tv-purple-bg{background:rgba(177,74,237,.16); box-shadow:0 0 14px rgba(177,74,237,.35);}
     .tv-purple-bg .tv-icon{color:#c98bff; text-shadow:0 0 8px rgba(177,74,237,.8);}
-    .tv-label{color:#e9d8ff; font-family:"JetBrains Mono",monospace; letter-spacing:.03em}
-    .tv-text{color:#d9c7f5; font-family:"JetBrains Mono",monospace;}
+    .tv-cap-card{width:100%}
+    .tv-row{width:100%}
+    .tv-label{color:#e9d8ff; font-family:"JetBrains Mono",monospace; letter-spacing:.03em; word-break:break-word; overflow-wrap:anywhere}
+    .tv-text{color:#d9c7f5; font-family:"JetBrains Mono",monospace; word-break:break-word; overflow-wrap:anywhere}
+    .flex-grow{min-width:0}
     /* Tool box -> CYAN with glow + border */
     .tv-blue-bg{background:rgba(45,226,230,.14); box-shadow:0 0 16px rgba(45,226,230,.4);}
     .tv-blue-bg .tv-icon{color:var(--cyan); text-shadow:0 0 8px rgba(45,226,230,.9);}
