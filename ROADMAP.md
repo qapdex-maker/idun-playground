@@ -5,7 +5,7 @@ Status quo, nah, mittelfristig und Vision für das Idun-Projekt
 
 ## Status quo (erledigt, live)
 
-1. **idun-sdk 1.0.17** — Python-Client + CLI, Entra Device-Code-Auth,
+1. **idun-sdk 1.0.18** — adds Idun Matrix (IDEA α): retrieve.py + matrix.py + `idun matrix` CLI (Doc × Question pivot, tenant-agnostic).
    steps-Relay, 17-provider registry, 16-bit retro console, MCP server.
    - GitHub `main` (ba78c14): README/CHANGELOG/pyproject updated.
    - CI: grün (pytest 3.8–3.14 + ruff==0.15.10; Termux job removed).
