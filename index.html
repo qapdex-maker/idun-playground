@@ -6,6 +6,7 @@
   <title>Idun — Neon Agent Console (Demo)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root{
@@ -119,7 +120,7 @@
     .tv-cap-card{display:flex; gap:10px; align-items:flex-start; width:100%;
       background:rgba(13,2,26,.55); border:1px solid rgba(177,74,237,.35);
       border-radius:10px; padding:10px 12px; box-shadow:0 0 0 1px rgba(45,226,230,.06);}
-    .tv-ic-bg{width:28px; height:28px; border-radius:8px; flex-shrink:0;
+    .tv-ic-bg{width:26px; height:26px; min-width:26px; border-radius:8px; flex-shrink:0; overflow:hidden;
       display:flex; align-items:center; justify-content:center;}
     .tv-purple-bg{background:rgba(177,74,237,.16); box-shadow:0 0 14px rgba(177,74,237,.35);}
     .tv-purple-bg .tv-icon{color:#c98bff; text-shadow:0 0 8px rgba(177,74,237,.8);}
@@ -143,6 +144,7 @@
     .tv-spinner{border:1.5px solid currentColor; border-right-color:transparent; border-radius:50%;
       width:10px; height:10px; display:inline-block; animation:tv-spin .7s linear infinite;}
     @keyframes tv-spin{to{transform:rotate(360deg)}}
+    .material-symbols-outlined{font-family:"Material Symbols Outlined"; font-size:18px; line-height:1; font-weight:400; font-style:normal;}
   </style>
   <link rel="stylesheet" href="trace-viz.css" />
 </head>
