@@ -43,6 +43,7 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.4);
     }
+    #trace-viz { max-height: 460px; overflow-y: auto; }
     .answer {
       margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border);
       white-space: pre-wrap; line-height: 1.6; font-size: 14px; color: var(--ink);
@@ -96,18 +97,31 @@
       var answerText = document.getElementById("answer-text");
       var traces = {};
 
+      var revealTimer = null;
       function render(key) {
         var t = traces[key];
         if (!t) return;
+        if (revealTimer) { clearInterval(revealTimer); revealTimer = null; }
+        var steps = t.steps || [];
+        var i = 0;
         meta.innerHTML = "Trace <b>" + key + "</b> · model <b>" +
-          (t.model || "demo-replay") + "</b> · " + (t.steps ? t.steps.length : 0) + " steps";
-        TraceViz.render(viz, t.steps || []);
-        if (t.answer) {
-          answerText.textContent = t.answer;
-          answerBox.style.display = "block";
-        } else {
-          answerBox.style.display = "none";
-        }
+          (t.model || "demo-replay") + "</b> · " + steps.length + " steps";
+        answerBox.style.display = "none";
+        viz.innerHTML = "";
+        // Reveal steps one-by-one so the trajectory "builds up" like a live run.
+        revealTimer = setInterval(function () {
+          if (i >= steps.length) {
+            clearInterval(revealTimer); revealTimer = null;
+            if (t.answer) {
+              answerText.textContent = t.answer;
+              answerBox.style.display = "block";
+            }
+            return;
+          }
+          TraceViz.render(viz, steps.slice(0, i + 1));
+          viz.scrollTop = viz.scrollHeight;
+          i += 1;
+        }, 650);
       }
 
       fetch("traces.json")
