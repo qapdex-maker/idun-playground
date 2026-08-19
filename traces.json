@@ -4,7 +4,7 @@
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich strukturiere die Antwort: zuerst das Kreislauf-Prinzip im Geschäftsmodell, dann drei konkrete, nachprüfbare Beispiele aus den öffentlichen Contoso-Materialien.",
+        "text": "I will structure the answer: first the circular-economy principle in the business model, then three concrete, verifiable examples drawn from Contoso's public materials.",
         "tool": "",
         "query": "",
         "status": "",
@@ -28,21 +28,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Die Quellen zeigen drei wiederkehrende Hebel: Produkt-als-Service, Recyclat-Einsatz und ein Rücknahmesystem. Ich fasse das als Beispiele.",
+        "text": "The sources show three recurring levers: product-as-a-service, recycled-content use, and a take-back system. I will summarise these as examples.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Contoso verankert Kreislaufwirtschaft an drei Stellen im Geschäftsmodell:\n\n1) Produkt-als-Service: Contosos Drucker- und Batteriesysteme werden im Pay-per-Use-Modell vermietet, nicht verkauft — Eigentum und Rückbau bleiben beim Hersteller.\n\n2) Recyclat-Einsatz: Seit 2026 bestehen Gehäuseteile zu 62 % aus zertifiziertem Post-Consumer-Recyclat; das Ziel für 2028 liegt bei 80 %.\n\n3) Rücknahmesystem: Über 4.200 Sammelpunkte nehmen Altgeräte zurück; ausgelesene Module werden wieder in die Produktion eingespeist.\n\nFazit: Kreislauf ist bei Contoso nicht nur PR, sondern Teil des Umsatzmodells (Service-Verträge) und der Beschaffung (Recyclat-Quote)."
+    "answer": "Contoso embeds circular economy at three points in its business model:\n\n1) Product-as-a-Service: Contoso's printer and battery systems are leased in a pay-per-use model rather than sold — ownership and end-of-life recovery stay with the manufacturer.\n\n2) Recycled-content use: since 2026, 62% of housing parts consist of certified post-consumer recyclate; the 2028 target is 80%.\n\n3) Take-back system: over 4,200 collection points accept end-of-life devices; tested modules are fed back into production.\n\nConclusion: at Contoso, circularity is not just PR but part of the revenue model (service contracts) and procurement (recyclate quota)."
   },
   "contoso/esg_check": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich prüfe die drei genannten Dimensionen nacheinander und markiere Lücken statt nur Lob.",
+        "text": "I will check the three named dimensions in turn and mark gaps rather than only praise.",
         "tool": "",
         "query": "",
         "status": "",
@@ -66,21 +66,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Emissions- und Governance-Daten sind vorhanden; die Lieferketten-Audit-Tiefe ist die sichtbarste Lücke.",
+        "text": "Emissions and governance data are available; supply-chain audit depth is the most visible gap.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "ESG-Check Contoso (basierend auf veröffentlichten Angaben):\n\nEmissionen — GUT: Scope 1/2 werden quartalsweise berichtet, SBTi-Ziel ist eingetragen. LÜCKE: Scope-3-Kategorien 4–11 sind nur teilweise abgedeckt, Unterlieferanten fehlen fast ganz.\n\nLieferkette — LÜCKE: Erststufen-Lieferanten sind auditiert, aber die tiefere Tier-2/3-Stufe hat keine veröffentlichte Ausfallquote oder korrigierende Maßnahmen.\n\nGovernance — GUT: ESG-KPIs sind an Vorstands-Vergütung gekoppelt; Bericht folgt CSRD-Struktur.\n\nWichtigste Lücke: Scope-3-Tiefe und Lieferketten-Transparenz jenseits der Tier-1-Ebene."
+    "answer": "ESG check — Contoso (based on published disclosures):\n\nEmissions — GOOD: Scope 1/2 reported quarterly; SBTi target is registered. GAP: Scope 3 categories 4–11 only partially covered; sub-suppliers are almost entirely missing.\n\nSupply chain — GAP: Tier-1 suppliers are audited, but the deeper Tier-2/3 level has no published failure rate or corrective actions.\n\nGovernance — GOOD: ESG KPIs are linked to executive compensation; the report follows the CSRD structure.\n\nBiggest gap: Scope 3 depth and supply-chain transparency beyond the Tier-1 level."
   },
   "contoso/web_research": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich suche aktuelle Nachrichten und trenne positive von kritischen Quellen.",
+        "text": "I will search for recent news and separate positive from critical sources.",
         "tool": "",
         "query": "",
         "status": "",
@@ -104,21 +104,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Berichtet wird positiv über Recyclat-Quote und Service-Modell, kritisch über die Scope-3-Lücke.",
+        "text": "Coverage is positive about the recyclate quota and service model, critical about the Scope 3 gap.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Aktuelle Contoso-Berichterstattung zur Nachhaltigkeit:\n\nPositiv:\n• TechReview hebt das Pay-per-Use-Modell als „konsequentesten Circular-Ansatz der Branche” hervor.\n• Eine Industrie-Studie zitiert Contosos 62 %-Recyclat-Quote als Benchmark.\n\nKritisch:\n• GreenWatch hinterfragt, ob die Scope-3-Bilanz die Tier-2/3-Zulieferer vollständig einschließt (Greenwashing-Risiko).\n• Eine NGO fordert detailliertere Lieferketten-Audit-Daten.\n\nBild: Contoso gilt als Vorreiter in Produktdesign, steht aber unter Druck bei Mess-Tiefe und Transparenz."
+    "answer": "Recent Contoso sustainability coverage:\n\nPositive:\n• TechReview calls the pay-per-use model \"the most consistent circular approach in the industry.\"\n• An industry study cites Contoso's 62% recyclate quota as a benchmark.\n\nCritical:\n• GreenWatch questions whether the Scope 3 accounting fully includes Tier-2/3 suppliers (greenwashing risk).\n• An NGO demands more detailed supply-chain audit data.\n\nPicture: Contoso is seen as a product-design front-runner but is under pressure on measurement depth and transparency."
   },
   "contoso/competitor_compare": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich vergleiche Contoso mit einem realen Wettbewerber entlang Kreislauf-Kriterien.",
+        "text": "I will compare Contoso with a real competitor along circular-economy criteria.",
         "tool": "",
         "query": "",
         "status": "",
@@ -142,21 +142,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Contoso führt bei Service-Modell und Recyclat-Quote, hinkt bei Offenlegung der Tier-2/3-Kette hinterher.",
+        "text": "Contoso leads on service model and recyclate quota, lags on disclosing the Tier-2/3 chain.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Contoso vs. ein realer Wettbewerber (Kreislaufwirtschaft):\n\nContoso führend in:\n• Produkt-als-Service-Umsatzanteil (geschätzt >30 % vs. ~12 %).\n• Recyclat-Quote in Gehäusen (62 % vs. ~40 %).\n\nWettbewerber führend in:\n• Öffentlicher Lieferketten-Tiefe (Tier-2/3-Audit-Daten sind veröffentlicht, Contoso nur andeutungsweise).\n• Dritter verifizierter Scope-3-Report (Contoso in Arbeit).\n\nFazit: Contoso gewinnt beim Geschäftsmodell, verliert bei der Mess-Transparenz — genau dort sollte die nächste ESG-Arbeit ansetzen."
+    "answer": "Contoso vs. a real competitor (circular economy):\n\nContoso leads in:\n• Product-as-a-service revenue share (est. >30% vs. ~12%).\n• Recyclate quota in housings (62% vs. ~40%).\n\nCompetitor leads in:\n• Public supply-chain depth (Tier-2/3 audit data published; Contoso only hinted at).\n• Third-party verified Scope 3 report (Contoso in progress).\n\nConclusion: Contoso wins on business model, loses on measurement transparency — that is exactly where the next ESG effort should focus."
   },
   "contoso/supply_chain_dashboard": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich strukturiere das Dashboard in Datenquellen, KPIs und Automatisierung.",
+        "text": "I will structure the dashboard into data sources, KPIs and automation.",
         "tool": "",
         "query": "",
         "status": "",
@@ -180,21 +180,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Die drei Säulen: Lieferanten-Portal, ERP-Extraktion, öffentliche Scope-3-Daten — alle per API automatisiert.",
+        "text": "The three pillars: supplier portal, ERP extraction, public Scope 3 data — all automated via API.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Lieferketten-Dashboard für Contoso (automatisiert):\n\nDatenquellen:\n1) Lieferanten-Portal: Tier-1/2 liefern monatlich Emissions- und Audit-Daten über ein gesichertes API.\n2) ERP-Extraktion: Produktions- und Logistikdaten aus SAP/Contoso-ERP per Nightly-Job.\n3) Öffentliche Scope-3-Daten: Branchen-Benchmarks via API ergänzt.\n\nKPIs: Scope-3-Abdeckung (%), Recyclat-Anteil pro SKU, Lieferanten-Compliance-Rate, CO2 pro Produkteinheit.\n\nAutomatisierung: ein Orchestrierungs-Job sammelt täglich, validiert und visualisiert; Abweichungen lösen Alerts aus. So wird aus manuellem Reporting ein Live-Steuerungsinstrument."
+    "answer": "Supply-chain dashboard for Contoso (automated):\n\nData sources:\n1) Supplier portal: Tier-1/2 submit monthly emissions and audit data via a secured API.\n2) ERP extraction: production and logistics data from SAP/Contoso ERP via a nightly job.\n3) Public Scope 3 data: industry benchmarks added via API.\n\nKPIs: Scope 3 coverage (%), recyclate share per SKU, supplier compliance rate, CO2 per product unit.\n\nAutomation: an orchestration job collects, validates and visualises daily; deviations trigger alerts. This turns manual reporting into a live control instrument."
   },
   "contoso/product_passport": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich definiere Datenmodell, Erfassung und Nutzung des Produktpasses.",
+        "text": "I will define the data model, capture and use of the product passport.",
         "tool": "",
         "query": "",
         "status": "",
@@ -218,21 +218,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Der Pass verkettet Material, Recyclat und Reparatur — lesbar per QR/NFC über die Geräte-Lebenszeit.",
+        "text": "The passport links material, recyclate and repair — readable via QR/NFC across the device lifetime.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Digitaler Produktpass für Contoso-Geräte:\n\nErfasste Daten:\n• Material-Stamm: Metalle, Kunststoffe, kritische Rohstoffe.\n• Recyclat-Anteil: % pro Bauteil, zertifiziert.\n• Reparatur: Explosionszeichnung, Ersatzteil-Verfügbarkeit, Reparierbarkeits-Score.\n• Lebenslauf: Herkunft, Wartungen, Rücknahme.\n\nNutzung: QR/NFC am Gerät öffnet den Pass; Werkstätten und Recycler lesen Material & Demontage; Kunden sehen Nachhaltigkeits-Profi. Erfüllt EU-Produktpass-Pflicht (ab 2027) und schließt den Kreislauf-Reportings-Loop."
+    "answer": "Digital product passport for Contoso devices:\n\nCaptured data:\n• Material master: metals, plastics, critical raw materials.\n• Recyclate share: % per component, certified.\n• Repair: exploded view, spare-part availability, repairability score.\n• Lifecycle: origin, maintenance, take-back.\n\nUsage: QR/NFC on the device opens the passport; workshops and recyclers read material & disassembly; customers see the sustainability profile. Meets the EU product-passport mandate (from 2027) and closes the circular-reporting loop."
   },
   "contoso/net_zero_roadmap": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich baue die Roadmap entlang Meilensteinen, Hebeln und Risiken.",
+        "text": "I will build the roadmap along milestones, levers and risks.",
         "tool": "",
         "query": "",
         "status": "",
@@ -256,21 +256,21 @@
       },
       {
         "kind": "reasoning",
-        "text": "Die Hebel: EE-Umstellung, Recyclat-Hochskalierung, Logistik-Elektrifizierung; Risiko ist Scope-3-Tiefe.",
+        "text": "Levers: renewable switch, recyclate scale-up, logistics electrification; risk is Scope 3 depth.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Netto-Null-Roadmap Contoso bis 2035:\n\nMeilensteine:\n• 2027: 100 % EE im eigenen Betrieb (Scope 1/2).\n• 2030: Recyclat-Quote auf 80 %, Takeback-Netz auf 8.000 Punkte.\n• 2035: Scope-3-Reduktion 50 % vs. Basisjahr, Rest über zertifizierte Senken.\n\nHebel: erneuerbare Energie, Materialkreislauf, elektrifizierte Logistik, Supplier-Programme.\n\nRisiken: Scope-3-Tiefe (Tier-2/3), Rohstoffpreise, Regulierung. Steuerung über das Lieferketten-Dashboard (siehe Demo)."
+    "answer": "Net-zero roadmap — Contoso to 2035:\n\nMilestones:\n• 2027: 100% renewable energy in own operations (Scope 1/2).\n• 2030: recyclate quota to 80%, take-back network to 8,000 points.\n• 2035: Scope 3 reduction 50% vs. base year; remainder via certified sinks.\n\nLevers: renewable energy, material circularity, electrified logistics, supplier programmes.\n\nRisks: Scope 3 depth (Tier-2/3), raw-material prices, regulation. Controlled via the supply-chain dashboard (see demo)."
   },
   "contoso/stakeholder_report": {
     "model": "demo-replay",
     "steps": [
       {
         "kind": "reasoning",
-        "text": "Ich orientiere die Gliederung an CSRD-Standards (ESRS).",
+        "text": "I will align the outline with CSRD standards (ESRS).",
         "tool": "",
         "query": "",
         "status": "",
@@ -294,13 +294,13 @@
       },
       {
         "kind": "reasoning",
-        "text": "Double-Materiality ist das Rückgrat: Impact- und Financial-Perspektive je ESRS.",
+        "text": "Double materiality is the backbone: impact and financial perspective per ESRS.",
         "tool": "",
         "query": "",
         "status": "",
         "id": "r2"
       }
     ],
-    "answer": "Gliederung Stakeholder-Nachhaltigkeitsbericht (CSRD/ESRS):\n\n1) Vorwort & Strategie (ESRS 2 GOV/SBM)\n2) Double-Materiality-Analyse (Impact + Financial)\n3) Umwelt (E1 Klima, E5 Ressourcen/Ressourcen-Effizienz, E3 Wasser)\n4) Soziales (S1 Arbeitnehmer, S2 Lieferkette)\n5) Governance (G1 Verhalten, ESG-Vergütung)\n6) Kennzahlen & Methodik (Scope 1/2/3, Recyclat, Takeback)\n7) Ausblick & Roadmap\n\nContoso deckt E1/E5 stark ab; Lücke bleibt die Lieferketten-Tiefe (S2), die im Bericht als Priorität ausgewiesen werden sollte."
+    "answer": "Outline — stakeholder sustainability report (CSRD/ESRS):\n\n1) Foreword & strategy (ESRS 2 GOV/SBM)\n2) Double-materiality analysis (impact + financial)\n3) Environment (E1 climate, E5 resource use/efficiency, E3 water)\n4) Social (S1 workforce, S2 supply chain)\n5) Governance (G1 conduct, ESG compensation)\n6) Metrics & methodology (Scope 1/2/3, recyclate, take-back)\n7) Outlook & roadmap\n\nContoso strongly covers E1/E5; the remaining gap is supply-chain depth (S2), which the report should flag as a priority."
   }
 }
