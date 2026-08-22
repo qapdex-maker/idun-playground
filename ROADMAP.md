@@ -1,67 +1,18 @@
 # Idun Roadmap
 
-Status quo, nah, mittelfristig und Vision für das Idun-Projekt
-(SDK + Playground + Docs). Stand: 2026-08-19 (update 2).
+The unified project roadmap (SDK + Playground + Docs) now lives in the
+**idun-sdk** repo:
 
-## Status quo (erledigt, live)
+- Source of truth: <https://github.com/qapdex-maker/idun-sdk/blob/main/ROADMAP.md>
 
-1. **idun-sdk 1.0.18** — adds Idun Matrix (IDEA α): retrieve.py + matrix.py + `idun matrix` CLI (Doc × Question pivot, tenant-agnostic).
-   steps-Relay, 17-provider registry, 16-bit retro console, MCP server.
-   - GitHub `main` (ba78c14): README/CHANGELOG/pyproject updated.
-   - CI: grün (pytest 3.8–3.14 + ruff==0.15.10; Termux job removed).
-   - **PyPI:** 1.0.17 live (https://pypi.org/project/idun-sdk/1.0.17/);
-     uploaded with `pypi-`-prefixed token.
-2. **Tenant-agnostic by default** — Foundry coords from `~/.idun/config.toml`
-   `[defaults]`. No hardcoded tenant in shipped code. Neutral `config.example.toml`.
-3. **idun-playground** — Dark Foundry look, Agent-Trace-Panel,
-   Live/Demo-Badge via `GET /api/health`, Demo-Fallback without token/account.
-4. **Demo-Mode erstklassig** — Router serves recorded traces (model
-   `demo-replay`) when no token; no crash; UI marks DEMO-REPLAY.
-5. **Public Demo (GitHub Pages)** — 8 Contoso traces, **fully English**,
-   static, no backend/account: https://qapdex-maker.github.io/idun-playground/
-6. **Landing page (qapdex-maker.github.io)** — IDUN-40 neon-outrun console
-   (reverted to 4bf945b per preference). Live.
-7. **Playground demo skinned neon** — `index.html` (GitHub Pages) uses the same
-   IDUN-40 outrun look (sun/grid/stars/CRT, plastic cartridge, color-coded trace:
-   reasoning=purple, tool=cyan, query=orange, done=green, Material Symbols icons,
-   mobile-readable). Live: https://qapdex-maker.github.io/idun-playground/
-7. **Async + Token rotation + Prompt packs** — `--async` CLI fixed
-   (acomplete), auto-rotation in auth.py, 8 contoso prompt packs.
+This playground repo focuses on the web UI / demo surface. What it adds on top
+of the SDK roadmap:
 
-## Phase 2 — Nächste Schritte (nah)
+- Dark Foundry look, agent-trace panel, Live/Demo badge via `GET /api/health`.
+- Recorded-trace demo fallback (model `demo-replay`) — no token/account needed.
+- Public demo (GitHub Pages): <https://qapdex-maker.github.io/idun-playground/>
+- IDEA β bridge: neon PWA `matrix_app.html` + local `matrix_server.py`.
+- Showcase: `expo.html` + `/api/expo` (Contoso demos, Live/Demo toggle, kiosk mode).
 
-1. **PyPI 1.0.17 upload** — DONE (live).
-2. **Docs** — Microsoft-Learn style: "own resource needed, demo without
-   account" explicit (partially done in playground README).
-3. **Trace-Export** — Agent trajectory as JSON/Markdown (offline).
-4. **Side-by-Side-Trace** — compare two prompt runs (Tool-Timeline-Diff;
-   `/api/diff` present).
-
-## Phase 3 — Mittelfristig
-
-1. **PR #4249 (Connector)** — PAUSED. Waits on Azure RBAC `agents/write`
-   (~70 EUR one-time, not paid). LIVE-BLOCKER.
-2. **365 calendar** — waits on Exchange license (Graph Device-Code ready).
-3. **SSE streaming** in playground instead of poll.
-
-## Phase 4 — Vision
-
-1. **Idun as backend** in Hermes WebUI preview.
-2. **Reusable tool-agent visualization** component for other Foundry agents.
-3. **Mobile app (PocketPal-hybrid, doc-matrix)** — IDEA α + β BUILT:
-   - α: `idun/retrieve.py` + `idun/matrix.py` + `idun matrix` CLI (Doc × Question pivot) — SDK 1.0.19.
-   - β: `matrix_app.html` (neon PWA) + `matrix_server.py` (local bridge, tenant-agnostic) in idun-playground.
-   - γ: `idun.diff_docs` / `idun matrix diff-docs` — Clause Drift compare (SDK 1.0.21).
-   - Live demo: https://qapdex-maker.github.io/idun-playground/matrix.html (recorded) and /matrix_app.html (bridge UI).
-
-## Showcase (Contoso Expo)
-
-`expo.html` + `/api/expo` + 8 Contoso demos + Live/Demo toggle + Kiosk mode
-in playground repo. Public GitHub Pages already covers "demo without account".
-
----
-
-### Blocker (honest)
-- **PR #4249:** org/financial pause (70 EUR RBAC). No code bug.
-- **PyPI 1.0.17:** LIVE (was 403 due to missing `pypi-` prefix, resolved).
-- **QMFI live test:** same RBAC 403. Offline + demo + external Foundry work.
+Status quo, open items, and the forward plan are tracked in the SDK roadmap
+above.
