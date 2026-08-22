@@ -1,5 +1,12 @@
 # Idun Playground
 
+[![Source](https://img.shields.io/badge/source-qapdex--maker%2Fidun--playground-black?logo=github)](https://github.com/qapdex-maker/idun-playground)
+[![Docs](https://img.shields.io/badge/docs-GitMCP-blue.svg)](https://gitmcp.io/qapdex-maker/idun-playground)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-≥3.8-blue.svg)](https://www.python.org/)
+[![Stack](https://img.shields.io/badge/stack-stdlib%20only-9cf.svg)](https://docs.python.org/3/library/http.server.html)
+[![Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://qapdex-maker.github.io/idun-playground/)
+
 A self-hostable, stdlib-only web playground for the **Idun** agent on Azure AI
 Foundry — render the full agent trajectory (reasoning + tool calls) in the
 browser, side-by-side trace diffs, and export to JSON / Markdown.
@@ -80,6 +87,7 @@ docker run -p 9001:9001 -e BIND_HOST=0.0.0.0 idun-playground
 ```
 In a container set `BIND_HOST=0.0.0.0` and put a TLS-terminating reverse proxy
 in front — the router itself has no auth layer beyond the Foundry token.
+
 ## Idun Matrix (IDEA α / β)
 
 A Doc × Question pivot built on the idun-sdk. Recorded demo + a tenant-agnostic
