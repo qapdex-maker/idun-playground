@@ -3,7 +3,7 @@ title: Router Playground
 description: Local multi-backend LLM router and Studio-style playground for the NatureLM-Idun-5-MoE agent — Contoso prompt lab, API reference, auth guide, and live telemetry.
 author: Idun SDK
 ms.author: idun-sdk
-ms.date: 2026-07-26
+ms.date: 2026-08-24
 ms.topic: how-to
 ---
 
