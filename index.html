@@ -51,6 +51,12 @@
     .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:blink 1.4s infinite}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
     @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+    .badge.ignite{border-color:rgba(255,185,0,.5); color:var(--orange);
+      box-shadow:0 0 18px rgba(255,185,0,.28); text-decoration:none;
+      animation:floaty 4s ease-in-out infinite; margin-left:10px;}
+    .badge.ignite:hover{color:#fff; border-color:var(--orange);}
+    .badge.ignite .mslogo{vertical-align:middle; margin-right:6px;
+      filter:drop-shadow(0 0 4px rgba(255,185,0,.5));}
 
     h1{font-family:Orbitron,monospace; font-weight:900; font-size:clamp(30px,6vw,56px);
       margin:20px 0 2px; line-height:.95; letter-spacing:2px;
@@ -155,6 +161,15 @@
 
   <div class="wrap">
     <div class="badge"><span class="dot"></span> IDUN · DEMO CONSOLE</div>
+    <a class="badge ignite" href="https://ignite.microsoft.com/" target="_blank" rel="noopener">
+      <svg class="mslogo" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+        <rect x="0" y="0" width="7" height="7" fill="#f25022"/>
+        <rect x="9" y="0" width="7" height="7" fill="#7fba00"/>
+        <rect x="0" y="9" width="7" height="7" fill="#00a4ef"/>
+        <rect x="9" y="9" width="7" height="7" fill="#ffb900"/>
+      </svg>
+      SEE US AT MICROSOFT IGNITE 2026 · SAN FRANCISCO · NOV 17–20
+    </a>
     <h1>IDUN-40</h1>
     <div class="sub">Recorded agent trajectories of the Idun agent on Azure AI Foundry — rendered live on the neon console. Pick a trace, watch it reason and call tools. No account needed.</div>
 
@@ -162,7 +177,7 @@
       <div class="dev-top">
         <span class="led"></span>
         <span class="brand">IDUN-40</span>
-        <span class="slot"><span class="cart"><span class="lbl">IDUN</span></span> CARTRIDGE · idun-sdk v1.0.17</span>
+        <span class="slot"><span class="cart"><span class="lbl">IDUN</span></span> CARTRIDGE · idun-sdk v1.0.32</span>
       </div>
       <div class="screen">
         <div id="trace-viz"></div>
