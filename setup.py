@@ -12,6 +12,6 @@ setup(
     py_modules=["router"],
     python_requires=">=3.8",
     # router.py imports idun (idun-sdk). Pin the SDK-parity version.
-    install_requires=["idun-sdk>=0.1.21"],
+    install_requires=["idun-sdk>=1.0.34"],
     keywords=["azure", "ai-foundry", "agent", "tool-agent", "playground", "idun"],
 )
