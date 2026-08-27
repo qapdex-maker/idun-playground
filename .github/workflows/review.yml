@@ -1,0 +1,34 @@
+name: Review
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  self-built-review:
+    # P2 (IGNITE prep): run the idun-sdk self-built reviewer as an extra PR
+    # quality signal. Optional: only runs when an LLM provider token is
+    # supplied as a repo secret (IDUN_REVIEW_TOKEN), so the job never fails
+    # a PR just because no token is configured. CodeRabbit does NOT auto-review
+    # this repo (<10 stars), so this fills that gap.
+    if: ${{ secrets.IDUN_REVIEW_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install idun-sdk + pytest
+        run: pip install idun-sdk idun-multi
+      - name: Configure review provider
+        env:
+          IDUN_REVIEW_TOKEN: ${{ secrets.IDUN_REVIEW_TOKEN }}
+        run: |
+          # Store the token for the reviewer (no-op if already set via secret env)
+          printf '%s' "$IDUN_REVIEW_TOKEN" > ~/.idun/openai.token 2>/dev/null || true
+      - name: Self-built review (dry-run)
+        continue-on-error: true
+        run: |
+          PR="${{ github.event.pull_request.number || 'local' }}"
+          idun-multi review "$PR" --repo qapdex-maker/idun-playground || true

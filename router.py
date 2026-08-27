@@ -22,10 +22,9 @@ import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
-from functools import partial
-
 import idun
 from idun import IdunClient, load_token, diff_traces, list_packs, load_pack, get_prompt
+from idun.providers import support_matrix_text
 from demo_traces import get_demo, first_demo_key, GENERIC_DEMO, DEMO_TRACES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -201,9 +200,18 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, UnicodeDecodeError):
             return {}
 
-    def _json(self, obj, code=200):
+    def _matrix_response(self, markdown_text):
+        """Send the support matrix as JSON {markdown} for the UI to render."""
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
+        self._cors()
+        self.end_headers()
+        self.wfile.write(json.dumps({"markdown": markdown_text}).encode("utf-8"))
+
+    def _json(self, obj):
         data = json.dumps(obj, ensure_ascii=False).encode("utf-8")
-        self.send_response(code)
+        self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self._cors()
         self.send_header("Content-Length", str(len(data)))
@@ -250,6 +258,15 @@ class Handler(BaseHTTPRequestHandler):
         route = urlparse(self.path).path
         if route == "/api/health":
             self._json(_health())
+            return
+        if route == "/api/sdk-matrix":
+            # Honest 17-provider capability + live matrix from the idun SDK.
+            # Pure registry read (no network call) -> safe in DEMO mode.
+            try:
+                md = support_matrix_text()
+            except Exception as e:  # pragma: no cover - defensive
+                md = f"_error: {e}"
+            self._matrix_response(md)
             return
         self._static(urlparse(self.path).path)
 

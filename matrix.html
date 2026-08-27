@@ -81,6 +81,9 @@
       <div class="dc" id="d-c"></div>
     </div>
     <footer>Idun is tenant-agnostic — self-host <a class="il" href="https://github.com/qapdex-maker/idun-sdk">idun-sdk</a> with your own Azure AI Foundry resource. <code>idun matrix --docs DIR --questions FILE</code>.</footer>
+    <h2 style="font-family:Orbitron,monospace;margin-top:40px;color:var(--cyan);letter-spacing:1px">IDUN SDK · 17-PROVIDER LIVE MATRIX</h2>
+    <div class="sub" style="margin-bottom:10px">Capability + live-verification state from the idun SDK registry (no network call). Declared = maintainer smoke-tested; Live = last real call from this machine.</div>
+    <div class="matrix" id="sdk-matrix" style="overflow:auto">loading…</div>
   </div>
   <script>
     (function(){
@@ -115,6 +118,26 @@
           mEl.appendChild(r);
         });
       }).catch(function(e){ m.innerHTML='<div class="err">Failed: '+e.message+'</div>'; });
+
+      // --- IDUN SDK live matrix (P1) ---
+      function mdTableToHtml(md){
+        var lines = md.trim().split('\n').filter(function(l){return l.indexOf('|')>=0;});
+        if(!lines.length) return '<div class="err">empty</div>';
+        var head = lines[0].split('|').slice(1,-1).map(function(s){return s.trim();});
+        var rows = lines.slice(2).map(function(l){return l.split('|').slice(1,-1).map(function(s){return s.trim();});});
+        var h='<table style="border-collapse:collapse;width:100%;font-family:\'JetBrains Mono\',monospace;font-size:11px">';
+        h+='<tr>'+head.map(function(c){return '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--purple);color:var(--cyan)">'+c+'</th>';}).join('')+'</tr>';
+        rows.forEach(function(r){
+          h+='<tr>'+r.map(function(c){
+            var col = c.indexOf('✓ live')>=0?'var(--green)':(c.indexOf('✗ fail')>=0?'var(--pink)':(c.indexOf('?')>=0?'var(--muted)':'var(--ink)'));
+            return '<td style="padding:6px 8px;border-bottom:1px solid rgba(177,74,237,.2);color:'+col+'">'+c+'</td>';
+          }).join('')+'</tr>';
+        });
+        return h+'</table>';
+      }
+      fetch('/api/sdk-matrix').then(function(r){return r.json();}).then(function(d){
+        document.getElementById('sdk-matrix').innerHTML = mdTableToHtml(d.markdown || '');
+      }).catch(function(e){ document.getElementById('sdk-matrix').textContent='Failed: '+e.message; });
     })();
   </script>
 </body>

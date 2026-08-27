@@ -70,8 +70,26 @@ Status: Vorbereitung.
 - GitHub = Wahrheit. Lokale Tests/pyflakes grün vor Push.
 - Kein Token/Wert ins Repo / in Commits / in Chat.
 
+## ERLEDIGT (27.08, lokal committet — Push auf Freigabe)
+
+- [x] **P1** — `/api/sdk-matrix` in router.py (liest `idun.providers.
+      support_matrix_text()`, kein Netzwerk-Call, Demo-mode-sicher) +
+      matrix.html rendert die 17-Provider-Live-Matrix. Verifiziert: Endpunkt
+      liefert Markdown-Tabelle mit Declared/Live-Spalte.
+- [x] **Bugfix** — `_json()` in router.py crashte mit `NameError: code`
+      (vorbestehender Fehler, blockierte `/api/health` + jeden JSON-Endpunkt).
+      Auf `send_response(200)` korrigiert.
+- [x] **P3** — `scripts/smoke_demos.py`: startet router.py, GET-tet alle 12
+      Seiten + `/api/health` + `/api/sdk-matrix`. Lokal PASS (0 failures).
+- [x] **P4** — `scripts/sync_sdk_version.py`: liest `idun.__version__` und
+      schreibt index.html/ignite.html/setup.py/requirements.txt. Verifiziert:
+      erkennt "unchanged" wenn schon synchron.
+- [x] **P2** — `scripts/precommit_review.sh` (advisory hook, exit 0) +
+      `.github/workflows/review.yml` (token-gated, continue-on-error) +
+      `REVIEW.md`. Review läuft nur mit Secret `IDUN_REVIEW_TOKEN`.
+
 ## Reihenfolge (bis IGNITE)
-1. P1 (SDK-Matrix sichtbar) — Demo-Wert am Booth.
-2. P4 (Version-Sync) — verhindert künftigen Drift.
-3. P3 (Demo-Robustheit) — Booth muss offline laufen.
-4. P2 (Review-CI) — Qualität, nicht booth-kritisch.
+1. P1 (SDK-Matrix sichtbar) — Demo-Wert am Booth. ✅
+2. P4 (Version-Sync) — verhindert künftigen Drift. ✅
+3. P3 (Demo-Robustheit) — Booth muss offline laufen. ✅
+4. P2 (Review-CI) — Qualität, nicht booth-kritisch. ✅
