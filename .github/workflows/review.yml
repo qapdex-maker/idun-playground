@@ -13,11 +13,19 @@ jobs:
     # always runs (checkout + setup) so a missing secret never fails a PR.
     # CodeRabbit does NOT auto-review this repo (<10 stars, see ARCHIVE.md),
     # so this fills that gap with tooling we control (data sovereignty).
+    #
+    # O6 (2026-08-28): provider is now configurable. The old hardcode wrote
+    # every secret to ~/.idun/openai.token, so a non-OpenAI secret (e.g. a
+    # Google/Gemini key) silently failed the OpenAI transport. Now the token is
+    # written to the correct provider file and `idun-multi review` is told which
+    # provider to use. Set IDUN_REVIEW_PROVIDER to match your secret
+    # (openai | gemini | openrouter | ...). Defaults to openai.
     runs-on: ubuntu-latest
     env:
       # Secrets are NOT accessible inside `if:` expressions, so lift the secret
       # into an env var first; env vars ARE usable in `if:`.
       IDUN_REVIEW_TOKEN: ${{ secrets.IDUN_REVIEW_TOKEN }}
+      IDUN_REVIEW_PROVIDER: ${{ secrets.IDUN_REVIEW_PROVIDER }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,17 +36,21 @@ jobs:
         run: pip install idun-sdk idun-multi
       - name: Configure review provider
         if: ${{ env.IDUN_REVIEW_TOKEN != '' }}
+        env:
+          PROVIDER: ${{ env.IDUN_REVIEW_PROVIDER || 'openai' }}
         run: |
           mkdir -p ~/.idun
-          printf '%s' "$IDUN_REVIEW_TOKEN" > ~/.idun/openai.token
+          printf '%s' "$IDUN_REVIEW_TOKEN" > "$HOME/.idun/${PROVIDER}.token"
+          echo "review provider: $PROVIDER"
       - name: Self-built review
         if: ${{ env.IDUN_REVIEW_TOKEN != '' }}
         continue-on-error: true
         env:
           IDUN_REVIEW_TOKEN: ${{ secrets.IDUN_REVIEW_TOKEN }}
+          PROVIDER: ${{ env.IDUN_REVIEW_PROVIDER || 'openai' }}
         run: |
           PR="${{ github.event.pull_request.number || 'local' }}"
-          idun-multi review "$PR" --repo qapdex-maker/idun-playground || true
+          idun-multi review "$PR" --repo qapdex-maker/idun-playground --provider "$PROVIDER" || true
       - name: Skipped (no token)
         if: ${{ env.IDUN_REVIEW_TOKEN == '' }}
-        run: echo "IDUN_REVIEW_TOKEN not set — skipping self-built review. Add the secret to enable."
+        run: echo "IDUN_REVIEW_TOKEN not set — skipping self-built review. Add the secret (+ optional IDUN_REVIEW_PROVIDER) to enable."
