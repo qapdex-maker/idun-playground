@@ -22,8 +22,7 @@ import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
-import idun
-from idun import IdunClient, load_token, diff_traces, list_packs, load_pack, get_prompt
+from idun import IdunClient, diff_traces, list_packs, load_pack, get_prompt
 from idun.providers import support_matrix_text
 from demo_traces import get_demo, first_demo_key, GENERIC_DEMO, DEMO_TRACES
 
